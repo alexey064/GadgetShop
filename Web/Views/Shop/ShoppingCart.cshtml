@@ -1,0 +1,32 @@
+﻿@model List<Product>
+<link rel="stylesheet" href="~/css/ShoppingCart.css"/>
+    <table class="table table-borderless">
+        @{
+            int totalcost = 0;
+        }
+        @foreach (Product prod in Model)
+        {
+            <tr>
+                <td rowspan="4" width="120">
+                    <img width="100" src="@prod.Photo"/>
+                </td>
+                <tr><td>@(prod.Name)(<form><input type="hidden"name="Id" value="@prod.ProductId"/>
+                    <button class="link-primary" asp-action="RemoveCart">Удалить</button>)</form></td></tr>
+                <tr><td>@(prod.Price)P</td></tr>
+                <tr><td>Количество: @(prod.Count)</td></tr>
+                @{
+                    totalcost = totalcost + prod.Count * prod.Price;
+                }
+            </tr>
+        }
+        <tr>
+            <td colspan="2" class="text-center"><h4><b>Итоговая цена: @(totalcost)P</b></h4></td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-center">
+                <form asp-action="MakeOrder">
+                    <button class="btn btn-success">Оформить заказ</button>
+                </form>
+            </td>
+        </tr>
+    </table>

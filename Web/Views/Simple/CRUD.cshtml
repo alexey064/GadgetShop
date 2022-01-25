@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Object>;
+@{ Layout = "_Sidebar";
+    System.Reflection.PropertyInfo[] columns = Model.GetType().GetGenericArguments()[0].GetProperties(); }
+<font color="Red">@ViewBag.Error</font>
+<form asp-action="AddOrUpdate">
+    <link rel="stylesheet" href="~/css/AdminCreateCol.css">
+    @for (int i = 1; i < columns.Length; i++)
+    {
+        @if (!columns[i].GetMethod.IsVirtual)
+        {
+            <div class="field">
+                <label class="control-label" for="@columns[i].Name">@columns[i].Name</label>
+                <input class="form-control" style="max-width:200px" id="@columns[i].Name" name="param" />
+            </div>
+        } 
+    }
+    <button class="btn btn-success" type="submit">Create</button>
+    <input hidden name="ObType" value="@Model.GetType().GetGenericArguments()[0].Name" />
+    <table class="table table-bordered table-sm table-striped table-hover" style="width:auto">
+        <thead>
+            <tr>
+                @for (int i = 0; i < columns.Length; i++)
+                {
+                    if (!columns[i].GetMethod.IsVirtual)
+                    { <td>@columns[i].Name</td> }
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr style="max-width:fit-content">
+                    @for (int i = 0; i < columns.Length; i++)
+                    {
+                        if (!columns[i].GetMethod.IsVirtual)
+                        { <td>@item.GetType().GetProperties()[i].GetValue(item)</td> }
+                    }
+                    <td>
+                    <button asp-action="AddOrUpdate" type="submit" name="Id" value="@item.GetType().GetProperties()[0].GetValue(item)" class="btn btn-danger">Replace</button>
+                        <button type="submit" asp-action="Delete" name="Id" value="@item.GetType().GetProperties()[0].GetValue(item)" class="btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (ViewBag.MaxPage != 1)
+    {
+        <div class="row my-4">
+            <div class="text-center">
+                @for (int i = 1; i < ViewBag.MaxPage + 1; i++)
+                {
+                    <a class="btn btn-outline-primary" asp-action="itemList" asp-route-Table="@ViewBag.Type" asp-route-Page="@i">@i</a>
+                }
+            </div>
+        </div>
+    }
+</form>

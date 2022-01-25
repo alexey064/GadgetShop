@@ -1,0 +1,75 @@
+﻿@model Diplom.Models.ViewModel.ProviderViewModel;
+@{
+
+    Layout = "_Sidebar";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>Provider</title>
+</head>
+<body>
+
+    <h4>Provider</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Save">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />
+                <div class="form-group">
+                    <label asp-for="EditItem.Date" class="control-label">Date</label>
+                    <input value="@Model.EditItem.Date" name="Date" asp-for="EditItem.Date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Department" class="control-label">Department</label>
+                    <select name="DepartmentId" class="form-select" asp-for="EditItem.Department">
+                        @foreach (KeyValuePair<int, string> item in Model.Departments)
+                        {
+                            if (Model.EditItem.DepartmentId == item.Key)
+                            {
+                                <option selected value="@item.Key">@item.Value</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Key">@item.Value</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Name</th>
+                        <th>Count</th>
+                    </tr>
+                    @foreach (ProdMovement item in Model.EditItem.ProdMovement)
+                    {
+                        <tr>
+                            <td>@item.Product.Name</td>
+                            <td>@item.Count</td>
+                            <td><button class="btn btn-danger" type="submit" name="DelId" value="@item.Id" asp-action="ProdDel"/></td>
+                        </tr>
+                    }
+                </table>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-success" />
+                    @if (Model.EditItem.Id != 0)
+                    {
+                        <button name="id" value="@Model.EditItem.Id" class="btn btn-primary" type="submit" asp-action="ProdMoveEdit">Товары</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <a class="btn btn-danger" asp-action="List">Back to List</a>
+    </div>
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

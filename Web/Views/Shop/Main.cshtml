@@ -1,0 +1,110 @@
+﻿@model Diplom.Models.ViewModel.MainPageViewModel
+<link rel="stylesheet" href="~/css/Item.css"/>
+<body>
+    <h4>newly added</h4>
+    <div class="row">
+        @foreach (Product item in Model.NewlyAdded)
+        {
+            if (item.Smartphone != null)
+            {
+                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+            }
+            else if (item.Notebook != null)
+            {
+                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+            }
+            else if (item.Accessory != null)
+            {
+                @await Html.PartialAsync("AccessoryItem", item.Accessory)
+            }
+            else if (item.WireHeadphones != null)
+            {
+                @await Html.PartialAsync("WireHeadphonesItem", item.WireHeadphones)
+            }
+            else if (item.WirelessHeadphones != null)
+            {
+                @await Html.PartialAsync("WirelessHeadphonesItem", item.WirelessHeadphones)
+            }
+        }
+    </div>
+    <h4>most buyed by prodMovement </h4>
+    <div class="row">
+        @foreach (Product item in Model.MostBuyed)
+        {
+            if (item.Smartphone != null)
+            {
+                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+            }
+            else if (item.Notebook != null)
+            {
+                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+            }
+            else if (item.Accessory != null)
+            {
+                @await Html.PartialAsync("AccessoryItem", item.Accessory)
+            }
+            else if (item.WireHeadphones != null)
+            {
+                @await Html.PartialAsync("WireHeadphonesItem", item.WireHeadphones)
+            }
+            else if (item.WirelessHeadphones != null)
+            {
+                @await Html.PartialAsync("WirelessHeadphonesItem", item.WirelessHeadphones)
+            }
+        }
+    </div>
+    <h4>most Discounted by max discount</h4>
+    <div class="row">
+        @foreach (Product item in Model.MaxDiscounted)
+        {
+            if (item.Smartphone != null)
+            {
+                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+            }
+            else if (item.Notebook != null)
+            {
+                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+            }
+            else if (item.Accessory != null)
+            {
+                @await Html.PartialAsync("AccessoryItem", item.Accessory)
+            }
+            else if (item.WireHeadphones != null)
+            {
+                @await Html.PartialAsync("WireHeadphonesItem", item.WireHeadphones)
+            }
+            else if (item.WirelessHeadphones != null)
+            {
+                @await Html.PartialAsync("WirelessHeadphonesItem", item.WirelessHeadphones)
+            }
+        }
+    </div>
+    <div class="modal fade" id="BuyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Ваш товар добавлен в корзину
+                </div>
+                <div class="modal-footer">
+                    <form asp-action="Buy">
+                        <input type="hidden" name="id"/>
+                        <input type="hidden" name="Count" value="1" />
+                        <input type="hidden" name="ReturnUrl"value="/shop/main"/>
+                        <button type="submit" class="btn btn-primary">ОК</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+@section Scripts{ 
+<script>
+    function GetProductToModal(numb)
+    {
+        var ProdId = document.getElementsByName("id")[0];
+        ProdId.value = numb;
+        var myModal = new bootstrap.Modal(document.getElementById('BuyModal'));
+        myModal.show();
+    }
+</script>
+}

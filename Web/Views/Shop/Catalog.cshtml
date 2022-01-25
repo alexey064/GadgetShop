@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Product>
+<link rel="stylesheet" href="~/css/Item.css" />
+<div class="row">
+    @foreach (Product item in Model)
+    {
+        if (item.Smartphone != null)
+        {
+            @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+        }
+        else if (item.Notebook != null)
+        {
+            @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+        }
+        else if (item.Accessory != null)
+        {
+            @await Html.PartialAsync("AccessoryItem", item.Accessory)
+        }
+        else if (item.WireHeadphones != null)
+        {
+            @await Html.PartialAsync("WireHeadphonesItem", item.WireHeadphones)
+        }
+        else if (item.WirelessHeadphones != null)
+        {
+            @await Html.PartialAsync("WirelessHeadphonesItem", item.WirelessHeadphones)
+        }
+    }
+</div>
+@if (ViewBag.MaxPage != 1)
+{
+    <div class="row my-4">
+        <div class="text-center">
+            @for (int i = 1; i < ViewBag.MaxPage + 1; i++)
+            {
+                if (ViewBag.Type == "Search")
+                {
+                    <a class="btn btn-outline-primary" asp-action="Search" asp-route-name="@ViewBag.Search" asp-route-Page="@i">@i</a>
+                }
+                else
+                {
+                    <a class="btn btn-outline-primary" asp-action="Catalog" asp-route-type="@ViewBag.Type" asp-route-Page="@i">@i</a>
+                }
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,113 @@
+﻿@model Product
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product description</title>
+    <link rel="stylesheet" href="~/css/SingleProduct.css" />
+</head>
+<body>
+    <div class="short-description">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="product-thumbnail">
+                        <img class="ProdImg" src="@Model.Photo" alt="">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-6">
+                    <h1 class="product-title">@Model.Name</h1>
+                    <div class="ratings">
+                        <span class="vote-count"></span>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-id"><span class="strong-text">ID продукта:</span> @Model.ProductId</span>
+                        <span class="product-avilability"><span class="strong-text">В наличии:</span> @Model.Count</span>
+                    </div>
+                    <div class="price">
+                        <span>@(Model.Price)Р</span>
+                    </div>
+                    <form class="purchase-form">
+                        @if (Model.Count > 0)
+                        {
+                            <div class="qt-area">
+                                <input name="Kolvo" class="qt" min="1" max="@Model.Count" value="1">
+                            </div>
+                            <button name="btn" id="btn" class="btn btn-primary btn-success" onclick="CheckAndSubmit()" type="button">Добавить в корзину</button>
+                        }
+                        else
+                        {
+                            <label>Нет в наличии</label>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="">
+            <div class="single-product-tabs center single-nav">
+                <ul class="nav nav-tabs nav-single-product-tabs" id="pills-tab" role="tablist">
+                    <li class="active" role="presentation">
+                        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#Description" type="button" role="tab" 
+                                aria-controls="pills-home" aria-selected="true">Описание</button>
+                    </li>
+                    <li class="active" role="presentation">
+                        <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#Characteristic" type="button" role="tab" 
+                                aria-controls="pills-profile" aria-selected="false">Характеристики</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content center" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="Description" role="tabpanel" aria-labelledby="pills-home-tab">
+                    <div class="product-desc">
+                        <h2>Product Description</h2>
+                        <p>@Model.Description</p>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="Characteristic" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    @if (Model.Accessory != null)
+                    { @await Html.PartialAsync("AccessoryChar", Model); }
+                    else if (Model.Notebook != null)
+                    { @await Html.PartialAsync("NotebookChar", Model); }
+                    else if (Model.Smartphone != null)
+                    { @await Html.PartialAsync("SmartphoneChar", Model); }
+                    else if (Model.WireHeadphones != null)
+                    { @await Html.PartialAsync("WireHeadphonesChar", Model); }
+                    else if (Model.WirelessHeadphones != null)
+                    { @await Html.PartialAsync("WirelessHeadphones", Model); }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="BuyModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Ваш товар добавлен в корзину
+                </div>
+                <div class="modal-footer">
+                    <form asp-action="Buy">
+                        <input type="hidden" name="Id" value="@Model.ProductId" />
+                        <input type="hidden" name="Count"/>
+                        <input type="hidden" name="ReturnUrl" value="/Shop/Product?id=@Model.ProductId"/>
+                        <button type="submit" class="btn btn-primary">ОК</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+@section Scripts {
+    <script>
+    function CheckAndSubmit() {
+        //объявление переменных
+        var Kolvo = document.getElementsByName("Kolvo")[0];
+        var Count = document.getElementsByName("Count")[0];
+        //проверка всех элементов на пустоту, а также дополнительные проверки
+        if (Kolvo.value > @Model.Count) { alert("Невозможно купить товар в данном количестве"); return; }
+        Count.value = Kolvo.value;
+        var myModal = new bootstrap.Modal(document.getElementById('BuyModal'));
+        myModal.show();
+    }
+    </script>
+}
