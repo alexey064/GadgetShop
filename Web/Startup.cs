@@ -42,9 +42,9 @@ namespace Diplom
                 });
             
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
-            services.AddDbContext<ShopContext>(p => p.UseSqlServer(Configuration["ConnectionStrings:Shop"]));
+            services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=LAPTOP-09UR5JLB;Database=Shop;integrated security=true;"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();
-            services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer(Configuration["ConnectionStrings:ShopIdentity"]));
+            services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer("server=LAPTOP-09UR5JLB;Database=ShopIdentity;integrated security=true;"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

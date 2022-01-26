@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -21,7 +22,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 0)
+        public async Task<ActionResult> List(int page = 0)
         {
             int Count = DB.WireHeadphones.Count();
             int temp = (int)Count / itemPerPage;
@@ -30,21 +31,21 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.WireHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)
+            var result = await DB.WireHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)
                 .Include(o => o.Product).ThenInclude(o => o.Type).Include(o=>o.Product).ThenInclude(o=>o.Color)
                 .Include(o=>o.ConnectionType)
-                .Skip(page * itemPerPage).Take(itemPerPage);
+                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             WireHeadViewModel model = new WireHeadViewModel();
-            model.Brands = DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Departments = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.Types = DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "ПровНаушники").ToDictionary(o => o.Id, o => o.Name);
-            model.Colors = DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.ConnectionType = DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem = DB.WireHeadphones.Include(o => o.Product).Where(o => o.Id == id).FirstOrDefault();
+            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "ПровНаушники").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.ConnectionType = await DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.WireHeadphones.Include(o => o.Product).Where(o => o.Id == id).FirstOrDefaultAsync();
             if (model.EditItem == null)
             {
                 model.EditItem = new WireHeadphone();
@@ -52,7 +53,7 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult Save(WireHeadphone wire, IFormFile UploadFile)
+        public async Task<IActionResult> Save(WireHeadphone wire, IFormFile UploadFile)
         {
             if (UploadFile!=null)
             {
@@ -79,16 +80,16 @@ namespace Diplom.Controllers
                 prev.Product.TypeId = wire.Product.TypeId;
                 DB.SaveChanges();
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             WireHeadphone wire = DB.WireHeadphones.Where(o => o.Id == id).First();
             DB.Products.Remove(wire.Product);
             DB.WireHeadphones.Remove(wire);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
         public string LoadPhoto(IFormFile file, string filePath)

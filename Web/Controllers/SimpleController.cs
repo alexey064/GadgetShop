@@ -4,8 +4,10 @@ using Diplom.Models.Model.simple;
 using Diplom.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -19,23 +21,23 @@ namespace Diplom.Controllers
         {
             DB = cont;
         }
-        public IActionResult ItemList(string Table, int Page) 
+        public async Task<ActionResult> ItemList(string Table, int Page=1) 
         {
             int Count = 0;
             object data = new object(); 
             switch (Table)
             {
-              case nameof(Brand):Count = ViewBag.Type = nameof(Brand); Count=DB.Brands.Count(); data=DB.Brands.Skip((Page-1)*itemPerPage).Take(itemPerPage).ToList(); break;
-              case nameof(Color): ViewBag.Type = nameof(Color); Count = DB.Colors.Count(); data=DB.Colors.Skip((Page - 1) * itemPerPage).Take(itemPerPage).ToList(); break;
-              case nameof(ChargingType): ViewBag.Type = nameof(ChargingType); Count = DB.ChargingTypes.Count(); data= DB.ChargingTypes.Skip((Page - 1)*itemPerPage).ToList(); break;
-              case nameof(Department): ViewBag.Type = nameof(Department); Count = DB.Departments.Count(); data= DB.Departments.Skip((Page - 1)*itemPerPage).Take(itemPerPage); break;
-        case nameof(MovementType): ViewBag.Type=nameof(MovementType); Count = DB.MovementTypes.Count(); data=DB.MovementTypes.Skip((Page - 1)*itemPerPage).Take(itemPerPage); break;
-              case nameof(OS): ViewBag.Type = nameof(OS); Count = DB.OS.Count();data= DB.OS.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
-              case nameof(Processor): ViewBag.Type = nameof(Processor); Count = DB.Processors.Count(); data = DB.Processors.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
-              case nameof(Provider): ViewBag.Type = nameof(Provider); Count = DB.Providers.Count(); data=DB.Providers.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
-              case nameof(ScreenType): ViewBag.Type=nameof(ScreenType); Count=DB.ScreenTypes.Count(); data =DB.ScreenTypes.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
-              case nameof(Type): ViewBag.Type = nameof(Type); Count = DB.Types.Count(); data= DB.Types.Skip((Page - 1) * itemPerPage).Take(itemPerPage).ToList(); break;
-              case nameof(Videocard): ViewBag.Type = nameof(Videocard); Count = DB.Videocards.Count(); data = DB.Videocards.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(Brand):ViewBag.Type = nameof(Brand); Count= await DB.Brands.CountAsync(); data=DB.Brands.Skip((Page-1)*itemPerPage).Take(itemPerPage); break;
+              case nameof(Color): ViewBag.Type = nameof(Color); Count = await DB.Colors.CountAsync(); data=DB.Colors.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(ChargingType): ViewBag.Type = nameof(ChargingType); Count = await DB.ChargingTypes.CountAsync(); data= DB.ChargingTypes.Skip((Page - 1)*itemPerPage); break;
+              case nameof(Department): ViewBag.Type = nameof(Department); Count = await DB.Departments.CountAsync(); data= DB.Departments.Skip((Page - 1)*itemPerPage).Take(itemPerPage); break;
+        case nameof(MovementType): ViewBag.Type=nameof(MovementType); Count = await DB.MovementTypes.CountAsync(); data=DB.MovementTypes.Skip((Page - 1)*itemPerPage).Take(itemPerPage); break;
+              case nameof(OS): ViewBag.Type = nameof(OS); Count =await DB.OS.CountAsync();data= DB.OS.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(Processor): ViewBag.Type = nameof(Processor); Count = await DB.Processors.CountAsync(); data = DB.Processors.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(Provider): ViewBag.Type = nameof(Provider); Count = await DB.Providers.CountAsync(); data=DB.Providers.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(ScreenType): ViewBag.Type=nameof(ScreenType); Count= await DB.ScreenTypes.CountAsync(); data =DB.ScreenTypes.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(Type): ViewBag.Type = nameof(Type); Count = await DB.Types.CountAsync(); data= DB.Types.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
+              case nameof(Videocard): ViewBag.Type = nameof(Videocard); Count = await DB.Videocards.CountAsync(); data = DB.Videocards.Skip((Page - 1) * itemPerPage).Take(itemPerPage); break;
               default: return View("Empty"); break;   
             }
             int temp = (int)Count / itemPerPage;
@@ -46,7 +48,7 @@ namespace Diplom.Controllers
             else ViewBag.MaxPage = temp + 1;
             return View("CRUD",data);
         }
-        public IActionResult AddOrUpdate(string ObType, string[] param, int id) 
+        public async Task<IActionResult> AddOrUpdate(string ObType, string[] param, int id) 
         {
             switch (ObType)
             {
@@ -55,7 +57,7 @@ namespace Diplom.Controllers
                     {
                         Brand brand = new Brand();
                         brand.Name = param[0];
-                        List<Brand> BRresult = DB.Brands.Where(o => o.Name == param[0]).ToList();
+                        List<Brand> BRresult =await DB.Brands.Where(o => o.Name == param[0]).ToListAsync();
                         if (BRresult.Count == 0)
                         {
                             DB.Brands.Add(brand);
@@ -63,7 +65,7 @@ namespace Diplom.Controllers
                         else ErrorMessage = "Данный объект уже создан";
                     }
                     else {
-                        Brand brand = DB.Brands.FirstOrDefault(o => o.Id == id);
+                        Brand brand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == id);
                         brand.Name = param[0];
                     }
                     break;
@@ -72,7 +74,7 @@ namespace Diplom.Controllers
                     {
                         Color color = new Color();
                         color.Name = param[0];
-                        List<Color> CRresult = DB.Colors.Where(o => o.Name == param[0]).ToList();
+                        List<Color> CRresult = await DB.Colors.Where(o => o.Name == param[0]).ToListAsync();
                         if (CRresult.Count == 0)
                         {
                             DB.Colors.Add(color);
@@ -81,7 +83,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        Color color = DB.Colors.FirstOrDefault(o => o.Id == id);
+                        Color color = await DB.Colors.FirstOrDefaultAsync(o => o.Id == id);
                         color.Name = param[0];
                     }
                     break;
@@ -90,7 +92,7 @@ namespace Diplom.Controllers
                     {
                         ChargingType CType = new ChargingType();
                         CType.Name = param[0];
-                        List<ChargingType> CRresult = DB.ChargingTypes.Where(o => o.Name == param[0]).ToList();
+                        List<ChargingType> CRresult = await DB.ChargingTypes.Where(o => o.Name == param[0]).ToListAsync();
                         if (CRresult.Count == 0)
                         {
                             DB.ChargingTypes.Add(CType);
@@ -99,7 +101,7 @@ namespace Diplom.Controllers
                     }
                     else
                     {
-                        ChargingType CType = DB.ChargingTypes.FirstOrDefault(o => o.Id == id);
+                        ChargingType CType = await DB.ChargingTypes.FirstOrDefaultAsync(o => o.Id == id);
                         CType.Name = param[0];
                     }
                     break;
@@ -108,7 +110,7 @@ namespace Diplom.Controllers
                     {
                         Department depart = new Department();
                         depart.Adress = param[0];
-                        List<Department> DepResult = DB.Departments.Where(o => o.Adress == param[0]).ToList();
+                        List<Department> DepResult = await DB.Departments.Where(o => o.Adress == param[0]).ToListAsync();
                         if (DepResult.Count == 0)
                         {
                             DB.Departments.Add(depart);
@@ -117,7 +119,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        Department depart = DB.Departments.First(o => o.DepartmentId == id);
+                        Department depart = await DB.Departments.FirstOrDefaultAsync(o => o.DepartmentId == id);
                         depart.Adress = param[0];
                     }
                     break;
@@ -126,7 +128,7 @@ namespace Diplom.Controllers
                     {
                         MovementType Movetype = new MovementType();
                         Movetype.Name = param[0];
-                        List<MovementType> MovResult = DB.MovementTypes.Where(o => o.Name == param[0]).ToList();
+                        List<MovementType> MovResult = await DB.MovementTypes.Where(o => o.Name == param[0]).ToListAsync();
                         if (MovResult.Count == 0)
                         {
                             DB.MovementTypes.Add(Movetype);
@@ -135,7 +137,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        MovementType Movetype = DB.MovementTypes.First(o => o.Id == id);
+                        MovementType Movetype = await DB.MovementTypes.FirstOrDefaultAsync(o => o.Id == id);
                         Movetype.Name = param[0];
                     }
                     break;
@@ -153,7 +155,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        OS os = DB.OS.FirstOrDefault(o => o.id == id);
+                        OS os = await DB.OS.FirstOrDefaultAsync(o => o.id == id);
                         os.Name = param[0];
                     }
                     break;
@@ -162,7 +164,7 @@ namespace Diplom.Controllers
                     {
                         Processor processor = new Processor();
                         processor.Name = param[0];
-                        List<Processor> ProcResult = DB.Processors.Where(o => o.Name == param[0]).ToList();
+                        List<Processor> ProcResult = await DB.Processors.Where(o => o.Name == param[0]).ToListAsync();
                         if (ProcResult.Count == 0)
                         {
                             DB.Processors.Add(processor);
@@ -171,7 +173,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        Processor processor = DB.Processors.First(o => o.Id == id);
+                        Processor processor = await DB.Processors.FirstOrDefaultAsync(o => o.Id == id);
                         processor.Name = param[0];
                     }
                     break;
@@ -180,7 +182,7 @@ namespace Diplom.Controllers
                     {
                         ScreenType SCtype = new ScreenType();
                         SCtype.Name = param[0];
-                        List<ScreenType> SCTResult = DB.ScreenTypes.Where(o => o.Name == param[0]).ToList();
+                        List<ScreenType> SCTResult = await DB.ScreenTypes.Where(o => o.Name == param[0]).ToListAsync();
                         if (SCTResult.Count == 0)
                         {
                             DB.ScreenTypes.Add(SCtype);
@@ -189,7 +191,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        ScreenType SCtype = DB.ScreenTypes.First(o => o.Id == id);
+                        ScreenType SCtype = await DB.ScreenTypes.FirstOrDefaultAsync(o => o.Id == id);
                         SCtype.Name = param[0];
                     }
                     break;
@@ -199,7 +201,7 @@ namespace Diplom.Controllers
                         Type type = new Type();
                         type.Name = param[0];
                         type.Category = param[1];
-                        List<Type> TypesResult = DB.Types.Where(o => (o.Category == param[1])).Where(o => o.Name == param[0]).ToList();
+                        List<Type> TypesResult = await DB.Types.Where(o => (o.Category == param[1])).Where(o => o.Name == param[0]).ToListAsync();
                         if (TypesResult.Count == 0)
                         {
                             DB.Types.Add(type);
@@ -208,7 +210,7 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        Type type = DB.Types.First(o => o.Id == id);
+                        Type type = await DB.Types.FirstOrDefaultAsync(o => o.Id == id);
                         type.Name = param[0];
                         type.Category = param[1];
                     }
@@ -218,7 +220,7 @@ namespace Diplom.Controllers
                     {
                         Videocard card = new Videocard();
                         card.Name = param[0];
-                        List<Videocard> CardRresult = DB.Videocards.Where(o => o.Name == param[0]).ToList<Videocard>();
+                        List<Videocard> CardRresult = await DB.Videocards.Where(o => o.Name == param[0]).ToListAsync<Videocard>();
                         if (CardRresult.Count == 0)
                         {
                             DB.Videocards.Add(card);
@@ -227,90 +229,90 @@ namespace Diplom.Controllers
                     }
                     else 
                     {
-                        Videocard card = DB.Videocards.FirstOrDefault(o => o.Id == id);
+                        Videocard card = await DB.Videocards.FirstOrDefaultAsync(o => o.Id == id);
                         card.Name = param[0];
                     }
                     break;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction("ItemList", new { Table = ObType });
         }
-        public IActionResult Delete(int Id, string ObType) 
+        public async Task<IActionResult> Delete(int Id, string ObType) 
         {
             switch (ObType)
             {
                 case nameof(Brand):
-                    Brand brand = DB.Brands.FirstOrDefault(o => o.Id == Id);
+                    Brand brand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == Id);
                     if (brand!=null)
                     {
                         DB.Brands.Remove(brand);
                     }
                     break;
                 case nameof(Color):
-                    Color color = DB.Colors.FirstOrDefault(o => o.Id == Id);
+                    Color color = await DB.Colors.FirstOrDefaultAsync(o => o.Id == Id);
                     if (color!=null)
                     {
                         DB.Colors.Remove(color);
                     }
                     break;
                 case nameof(ChargingType):
-                    ChargingType CType = DB.ChargingTypes.FirstOrDefault(o => o.Id == Id);
+                    ChargingType CType = await DB.ChargingTypes.FirstOrDefaultAsync(o => o.Id == Id);
                     if (CType != null)
                     {
                         DB.ChargingTypes.Remove(CType);
                     }
                     break;
                 case nameof(Department):
-                    Department depart = DB.Departments.FirstOrDefault(o=>o.DepartmentId==Id);
+                    Department depart =await DB.Departments.FirstOrDefaultAsync(o=>o.DepartmentId==Id);
                     if (depart!=null)
                     {
                         DB.Departments.Remove(depart);
                     }
                     break;
                 case nameof(MovementType):
-                    MovementType Movetype = DB.MovementTypes.FirstOrDefault(o => o.Id == Id);
+                    MovementType Movetype = await DB.MovementTypes.FirstOrDefaultAsync(o => o.Id == Id);
                     if (Movetype!= null)
                     {
                         DB.MovementTypes.Remove(Movetype);
                     }
                     break;
                 case nameof(OS):
-                    OS os = DB.OS.FirstOrDefault(o => o.id == Id);
+                    OS os = await DB.OS.FirstOrDefaultAsync(o => o.id == Id);
                     if (os!=null)
                     {
                         DB.OS.Remove(os);
                     }
                     break;
                 case nameof(Processor):
-                    Processor processor = DB.Processors.FirstOrDefault(o => o.Id == Id);
+                    Processor processor = await DB.Processors.FirstOrDefaultAsync(o => o.Id == Id);
                     if (processor!=null)
                     {
                         DB.Processors.Remove(processor);
                     }
                     break;
                 case nameof(ScreenType):
-                    ScreenType SCtype = DB.ScreenTypes.FirstOrDefault(o => o.Id == Id);
+                    ScreenType SCtype = await DB.ScreenTypes.FirstOrDefaultAsync(o => o.Id == Id);
                     if (SCtype!= null)
                     {
                         DB.ScreenTypes.Remove(SCtype);
                     }
                     break;
                 case nameof(Type):
-                    Type type = DB.Types.FirstOrDefault(o => o.Id == Id);
+                    Type type = await DB.Types.FirstOrDefaultAsync(o => o.Id == Id);
                     if (type!=null)
                     {
                         DB.Types.Remove(type);
                     }
                     break;
                 case nameof(Videocard):
-                    Videocard card = DB.Videocards.FirstOrDefault(o => o.Id == Id);
+                    Videocard card = await DB.Videocards.FirstOrDefaultAsync(o => o.Id == Id);
                     if (card!= null)
                     {
                         DB.Videocards.Remove(card);
                     }
                     break;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction("ItemList", new { Table = ObType });
         }
     }

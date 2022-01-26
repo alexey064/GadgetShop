@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -19,7 +20,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 1)
+        public async Task<ActionResult> List(int page = 1)
         {
             int Count = DB.Notebooks.Count();
             int temp = (int)Count / itemPerPage;
@@ -28,24 +29,25 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.Notebooks.Include(o=>o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product)
+            var result = await DB.Notebooks.Include(o => o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product)
                 .ThenInclude(o => o.Type).Include(o => o.product).ThenInclude(o => o.Brand).Include(o => o.product)
-                .ThenInclude(o => o.Department).Include(o=>o.Videocard).Include(o=>o.product).ThenInclude(o=>o.Color);
+                .ThenInclude(o => o.Department).Include(o => o.Videocard).Include(o => o.product).ThenInclude(o => o.Color)
+                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             NotebookViewModel model = new NotebookViewModel();
-            model.Brands = DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Departments = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.Types = DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Ноутбук").ToDictionary(o => o.Id, o => o.Name);
-            model.Processors = DB.Processors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.ScreenTypes = DB.ScreenTypes.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.OS = DB.OS.Select(o => new { o.id, o.Name }).ToDictionary(o => o.id, o => o.Name);
-            model.Colors = DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Videocards = DB.Videocards.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem = DB.Notebooks.Include(o => o.product).Where(o => o.Id == id).FirstOrDefault();
+            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Ноутбук").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Processors = await DB.Processors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.ScreenTypes = await DB.ScreenTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.OS = await DB.OS.Select(o => new { o.id, o.Name }).ToDictionaryAsync(o => o.id, o => o.Name);
+            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Videocards = await DB.Videocards.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.Notebooks.Include(o => o.product).Where(o => o.Id == id).FirstOrDefaultAsync();
             if (model.EditItem == null)
             {
                 model.EditItem = new Notebook();
@@ -53,7 +55,7 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult Save(Notebook notebook, IFormFile UploadFile)
+        public async Task<IActionResult> Save(Notebook notebook, IFormFile UploadFile)
         {
             if (UploadFile != null)
             {
@@ -93,16 +95,16 @@ namespace Diplom.Controllers
                 prev.product.Price = notebook.product.Price;
                 prev.product.TypeId = notebook.product.TypeId;
             }
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
                 return RedirectToAction(nameof(List));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             Notebook notebook = DB.Notebooks.Where(o => o.Id == id).First();
             DB.Products.Remove(notebook.product);
             DB.Notebooks.Remove(notebook);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
         public string LoadPhoto(IFormFile file, string filePath) 

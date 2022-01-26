@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -49,7 +50,37 @@ namespace Diplom.Controllers
                 .Where(o => o.DiscountDate > System.DateTime.Now).OrderByDescending(o => o.Discount).Take(5).ToList();
             return View(model);
         }
-        public IActionResult Catalog(string type, int Page) 
+        public async Task<IActionResult> MainAsync()
+        {
+            MainPageViewModel model = new MainPageViewModel();
+            model.NewlyAdded = await DB.Products.Include(o => o.Accessory)
+                .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
+                .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
+                .Include(o => o.WireHeadphones)
+                .Include(o => o.WirelessHeadphones)
+                .OrderByDescending(o => o.AddDate).Take(5).ToListAsync();
+            Dictionary<int, int> temp = await DB.ProdMovements.Where(o => o.MovementTypeId == 2).GroupBy(o => o.ProductId)
+                .Select(g => new { ProductId = g.Key, Count = g.Sum(o => o.Count) }).OrderByDescending(o => o.Count)
+                .Take(5).ToDictionaryAsync(o => o.ProductId, o => o.Count);
+            model.MostBuyed = new List<Product>();
+            foreach (KeyValuePair<int, int> item in temp)
+            {
+                model.MostBuyed.Add(await DB.Products.Include(o => o.Accessory)
+         .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
+                .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
+                .Include(o => o.WireHeadphones)
+                .Include(o => o.WirelessHeadphones)
+                .Where(o => o.ProductId == item.Key).FirstOrDefaultAsync());
+            }
+            model.MaxDiscounted = await DB.Products.Include(o => o.Accessory)
+         .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
+                .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
+                .Include(o => o.WireHeadphones)
+                .Include(o => o.WirelessHeadphones)
+                .Where(o => o.DiscountDate > System.DateTime.Now).OrderByDescending(o => o.Discount).Take(5).ToListAsync();
+            return View("main",model);
+        }
+        public async Task<IActionResult> Catalog(string type, int Page) 
         {
             List<Product> output = new List<Product>();
             ViewBag.CurrentPage = Page;
@@ -58,37 +89,37 @@ namespace Diplom.Controllers
             {
                 case nameof(Notebook):
                     ViewBag.Type = nameof(Notebook);
-                    count = DB.Notebooks.Count();
-                    output = DB.Products.Include(o => o.Brand).Include(o => o.Color)
+                    count = await DB.Notebooks.CountAsync();
+                    output = await DB.Products.Include(o => o.Brand).Include(o => o.Color)
                         .Include(o=>o.Notebook).ThenInclude(o=>o.OS).Include(o=>o.Notebook).ThenInclude(o=>o.Processor)
                         .Include(o=>o.Notebook).ThenInclude(o=>o.ScreenType).Include(o=>o.Notebook).ThenInclude(o=>o.Videocard)
-                        .Where(o => o.Notebook != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToList();
+                        .Where(o => o.Notebook != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
                     break;
                 case nameof(Smartphone):
                     ViewBag.Type = nameof(Smartphone);
-                    count = DB.Smartphones.Count();
-                    output = DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Smartphone)
+                    count = await DB.Smartphones.CountAsync();
+                    output = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Smartphone)
                         .Include(o=>o.Smartphone).ThenInclude(o=>o.ChargingType).Include(o=>o.Smartphone).ThenInclude(o=>o.OS)
                         .Include(o=>o.Smartphone).ThenInclude(o=>o.Processor).Include(o=>o.Smartphone).ThenInclude(o=>o.ScreenType)
-                        .Where(o => o.Smartphone != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToList();
+                        .Where(o => o.Smartphone != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
                     break;
                 case nameof(Accessory):
                     ViewBag.Type = nameof(Accessory);
-                    count = DB.Accessories.Count();
-                    output = DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory)
-                    .Where(o => o.Accessory != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToList();
+                    count = await DB.Accessories.CountAsync();
+                    output = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory)
+                    .Where(o => o.Accessory != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
                         break;
                 case nameof(WireHeadphone):
                     ViewBag.Type = nameof(WireHeadphone);
-                    count = DB.WireHeadphones.Count();
-                    output = DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
-                        .Where(o => o.WireHeadphones != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToList();
+                    count =await DB.WireHeadphones.CountAsync();
+                    output = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
+                        .Where(o => o.WireHeadphones != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
                     break;
                 case nameof(WirelessHeadphone):
                     ViewBag.Type = nameof(WirelessHeadphone);
-                    count = DB.WirelessHeadphones.Count();
-                    output = DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
-                        .Where(o => o.WirelessHeadphones != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToList();
+                    count =await DB.WirelessHeadphones.CountAsync();
+                    output = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
+                        .Where(o => o.WirelessHeadphones != null).Skip((Page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
                     break;
             }
             int temp =(int) count / itemPerPage;
@@ -99,18 +130,17 @@ namespace Diplom.Controllers
             else ViewBag.MaxPage = temp + 1;
             return View(output);
         }
-        public IActionResult Search(string Name, int Page) 
+        public async Task<IActionResult> Search(string Name, int Page) 
         {
             ViewBag.Search = Name;
-            var temp = DB.Products
+            var output = await DB.Products
                 .Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory)
                 .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
                 .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
                 .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
                 .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
-                .Where(o => o.Name.ToLower().Contains(Name.ToLower()));
-            int count = temp.Count();
-            List<Product> output = temp.Skip((Page-1)*itemPerPage).Take(itemPerPage).ToList();
+                .Where(o => o.Name.ToLower().Contains(Name.ToLower())).Skip((Page - 1) * itemPerPage).Take(itemPerPage).ToListAsync(); ;
+            int count = await DB.Products.Where(o => o.Name.ToLower().Contains(Name.ToLower())).CountAsync();
             int res = (int)count / itemPerPage;
             if (res * itemPerPage == count)
             {
@@ -124,14 +154,14 @@ namespace Diplom.Controllers
         {
             return View();
         }
-        public IActionResult Product(int id) 
+        public async Task<IActionResult> Product(int id) 
         {
-            Product model = DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o=>o.Type)
+            Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o=>o.Type)
                 .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor).Include(o=>o.Notebook).ThenInclude(o=>o.Videocard).Include(o=>o.Notebook).ThenInclude(o=>o.ScreenType)
                 .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor).Include(o=>o.Smartphone).ThenInclude(o=>o.ChargingType).Include(o=>o.Smartphone).ThenInclude(o=>o.ScreenType)
                 .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
                 .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
-                .Where(o => o.ProductId == id).FirstOrDefault();
+                .Where(o => o.ProductId == id).FirstAsync();
             if (model==null)
             {
                 return NotFound();
@@ -142,12 +172,12 @@ namespace Diplom.Controllers
         {
             return View();
         }
-        public IActionResult ShoppingCart() 
+        public async Task<IActionResult> ShoppingCart() 
         {
             List<Product> products = new List<Product>();
             if (User.Identity.Name!=null)
             {
-                PurchaseHistory hist = DB.PurchaseHistories.Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefault();
+                PurchaseHistory hist = await DB.PurchaseHistories.Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefaultAsync();
                 if (hist==null)
                 {
                     return View(products);
@@ -176,26 +206,26 @@ namespace Diplom.Controllers
             }
             return View(products);
         }
-        public IActionResult Buy(int id, int Count, string ReturnUrl) 
+        public async Task<IActionResult> Buy(int id, int Count, string ReturnUrl) 
         {// если пользователь зарегистрирован, то проверяем есть ли для пользователя корзина продуктов
             if (User.Identity.Name != null)
             {
-                PurchaseHistory hist = DB.PurchaseHistories.Include(o => o.ProdMovement).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefault();
+                PurchaseHistory hist = await DB.PurchaseHistories.Include(o => o.ProdMovement).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefaultAsync();
                 if (hist == null)
                 {//Если на пользователя не зарегистрирована корзина продуктов, то надо её создать
                     hist = new PurchaseHistory();
-                    hist.Client = DB.Clients.Where(o => o.NickName == User.Identity.Name).FirstOrDefault();
+                    hist.Client = await DB.Clients.Where(o => o.NickName == User.Identity.Name).FirstOrDefaultAsync();
                     hist.StatusId = 11;
                     hist.ProdMovement = new List<ProdMovement>();
                     DB.PurchaseHistories.Add(hist);
-                    hist.DepartmentId = DB.Products.Where(o => o.ProductId == id).First().DepartmentId;
-                    DB.SaveChanges();
+                    hist.DepartmentId =  DB.Products.Where(o => o.ProductId == id).First().DepartmentId;
+                    await DB.SaveChangesAsync();
                 }
                 ProdMovement ExistedProd = hist.ProdMovement.Where(o => o.ProductId == id).FirstOrDefault();
                 if (ExistedProd != null)
                 {//Если в корзину добавляем ранее добавленный товар
                     ExistedProd.Count = ExistedProd.Count + Count;
-                    DB.SaveChanges();
+                    await DB.SaveChangesAsync();
                 }
                 else
                 {
@@ -208,7 +238,7 @@ namespace Diplom.Controllers
                 }
                 Product product = DB.Products.Where(o => o.ProductId == id).FirstOrDefault();
                 product.Count = product.Count - Count;
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
             }
             else
             {
@@ -249,12 +279,12 @@ namespace Diplom.Controllers
             }
             return Redirect(ReturnUrl);
         }
-        public IActionResult MakeOrder() 
+        public async Task<IActionResult> MakeOrder() 
         {//Если в базе данных есть запись о списке покупок, то надо его вывести
             PurchaseHistory hist;
             if (User.Identity.Name != null)
             {
-                hist = DB.PurchaseHistories.Include(o => o.Client).Include(o => o.ProdMovement).Where(o => o.Client.NickName == User.Identity.Name).FirstOrDefault();
+                hist = await DB.PurchaseHistories.Include(o => o.Client).Include(o => o.ProdMovement).Where(o => o.Client.NickName == User.Identity.Name).FirstOrDefaultAsync();
             }//если пользователь не авторизован, то надо создать новый список покупок
             else
             {
@@ -280,14 +310,14 @@ namespace Diplom.Controllers
             }
             return View(hist);
         }
-        public IActionResult CompleteOrder(int id) 
+        public async Task<IActionResult> CompleteOrder(int id) 
         {
             if (User.Identity.Name!=null)
             {
-                PurchaseHistory purch = DB.PurchaseHistories.Where(o => o.Id == id).First();
+                PurchaseHistory purch = await DB.PurchaseHistories.Where(o => o.Id == id).FirstAsync();
                 purch.StatusId = 13;
                 purch.PurchaseDate = DateTime.Now;
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
             }
             else 
             {
@@ -305,7 +335,7 @@ namespace Diplom.Controllers
                     {
                         ProdMovement movement = new ProdMovement();
                         ProductId = int.Parse(System.Text.Encoding.UTF8.GetString(result));
-                        movement.Product = DB.Products.Where(o => o.ProductId == ProductId).First();
+                        movement.Product = await DB.Products.Where(o => o.ProductId == ProductId).FirstAsync();
                         HttpContext.Session.TryGetValue("Count" + i, out result);
                         movement.Count = int.Parse(System.Text.Encoding.UTF8.GetString(result));
                         movement.MovementTypeId = 2;
@@ -314,27 +344,27 @@ namespace Diplom.Controllers
                     else break;
                 }
                 DB.PurchaseHistories.Add(hist);
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
                 foreach (ProdMovement item in hist.ProdMovement)
                 {
                     Product prod = DB.Products.Find(item.ProductId);
                     prod.Count = prod.Count - item.Count;
                 }
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
             }
             return RedirectToAction("main");
         }
-        public IActionResult RemoveCart(int id) 
+        public async Task<IActionResult> RemoveCart(int id) 
         {
             List<Product> products = new List<Product>();
             if (User.Identity.Name != null)
             {
-                PurchaseHistory hist = DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefault();
+                PurchaseHistory hist =await DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefaultAsync();
                 int count = hist.ProdMovement.Where(o => o.Product.ProductId == id).Select(o => o.Count).First();
                 Product product = DB.Products.Where(o => o.ProductId == id).First();
                 hist.ProdMovement.Remove(hist.ProdMovement.Where(o => o.ProductId == id).First());
                 product.Count = product.Count + count;
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
             }
             else
             {

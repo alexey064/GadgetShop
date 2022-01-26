@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -20,7 +21,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 0)
+        public async Task<ActionResult> List(int page = 0)
         {
             int Count = DB.WirelessHeadphones.Count();
             int temp = (int)Count / itemPerPage;
@@ -29,21 +30,21 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.WirelessHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)
+            var result = await DB.WirelessHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)
                 .Include(o => o.Product).ThenInclude(o => o.Type).Include(o=>o.Product).ThenInclude(o=>o.Color)
                 .Include(o=>o.ChargingType)
-                .Skip(page * itemPerPage).Take(itemPerPage);
+                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             WirelessHeadViewModel model = new WirelessHeadViewModel();
-            model.Brands = DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Departments = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.Types = DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "БеспрНаушники").ToDictionary(o => o.Id, o => o.Name);
-            model.Colors = DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.ConnectionType = DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem = DB.WirelessHeadphones.Include(o => o.Product).Where(o => o.Id == id).FirstOrDefault();
+            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "БеспрНаушники").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.ConnectionType = await DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.WirelessHeadphones.Include(o => o.Product).Where(o => o.Id == id).FirstOrDefaultAsync();
             if (model.EditItem == null)
             {
                 model.EditItem = new WirelessHeadphone();
@@ -51,7 +52,7 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult Save(WirelessHeadphone wireless, IFormFile UploadFile)
+        public async Task<IActionResult> Save(WirelessHeadphone wireless, IFormFile UploadFile)
         {
             if (UploadFile!=null)
             {
@@ -81,16 +82,16 @@ namespace Diplom.Controllers
                 prev.Product.TypeId = wireless.Product.TypeId;
                 DB.SaveChanges();
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             WirelessHeadphone wireless = DB.WirelessHeadphones.Where(o => o.Id == id).First();
             DB.Products.Remove(wireless.Product);
             DB.WirelessHeadphones.Remove(wireless);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
         public string LoadPhoto(IFormFile file, string filePath)

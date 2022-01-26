@@ -22,7 +22,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 0)
+        public async Task<ActionResult> List(int page = 0)
         {
             int Count = DB.Clients.Count();
             int temp =(int) Count / itemPerPage;
@@ -31,15 +31,15 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.Clients.Include(o => o.Department).Include(o => o.Post).Skip(page * itemPerPage);
+            var result = await DB.Clients.Include(o => o.Department).Include(o => o.Post).Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             ClientViewModel model = new ClientViewModel();
-            model.Departments = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.Posts = DB.Types.Select(o => new { o.Id, o.Name, o.Category}).Where(o=>o.Category== "Должность").ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem = DB.Clients.Include(o=>o.Department).Include(o=>o.Post).Where(o => o.Id == id).FirstOrDefault();
+            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.Posts = await DB.Types.Select(o => new { o.Id, o.Name, o.Category}).Where(o=>o.Category== "Должность").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.Clients.Include(o=>o.Department).Include(o=>o.Post).Where(o => o.Id == id).FirstOrDefaultAsync();
             if (model.EditItem == null)
             {
                 model.EditItem = new Client();
@@ -48,7 +48,7 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult Save(Client client)
+        public async Task<IActionResult> Save(Client client)
         {
             if (client.Id == 0)
             {
@@ -56,21 +56,21 @@ namespace Diplom.Controllers
             }
             else
             {
-                var prev = DB.Clients.Include(o => o.Department).Include(o=>o.Post).Where(o => o.Id ==client.Id).First();
+                var prev = await DB.Clients.Include(o => o.Department).Include(o=>o.Post).Where(o => o.Id ==client.Id).FirstAsync();
                 prev.FullName = client.FullName;
                 prev.Phone = client.Phone;
                 prev.DepartmentId = client.DepartmentId;
                 prev.PostId = client.PostId;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
             Client client = DB.Clients.Where(o => o.Id == id).First();
             DB.Clients.Remove(client);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
     }

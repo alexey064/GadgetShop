@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -19,7 +20,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 0)
+        public async Task<ActionResult> List(int page = 0)
         {
             int Count = DB.Providers.Count();
             int temp = (int)Count / itemPerPage;
@@ -29,14 +30,14 @@ namespace Diplom.Controllers
             }
             else ViewBag.MaxPage = temp + 1;
             ViewBag.CurrentPage = page;
-            List<Provider> result = DB.Providers.Include(o => o.Department).Include(o => o.ProdMovement).ThenInclude(o => o.Product).Skip(page * itemPerPage).Take(itemPerPage).ToList();
+            var result = await DB.Providers.Include(o => o.Department).Include(o => o.ProdMovement).ThenInclude(o => o.Product).Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             ProviderViewModel model = new ProviderViewModel();
-            model.EditItem = DB.Providers.Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).Where(o => o.Id == id).FirstOrDefault();
-            model.Departments = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
+            model.EditItem = await DB.Providers.Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).Where(o => o.Id == id).FirstOrDefaultAsync();
+            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
             if (model.EditItem==null)
             {
                 model.EditItem = new Provider();
@@ -44,38 +45,38 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult ProdMoveEdit(int? id)
+        public async Task<IActionResult> ProdMoveEdit(int? id)
         {
             ProdMViewModel model = new ProdMViewModel();
-            model.EditItem = DB.Providers.Where(o => o.Id == id).First();
-            model.product = DB.Products.Select(o => new { o.ProductId, o.Name }).ToDictionary(o => o.ProductId, o => o.Name);
+            model.EditItem = await DB.Providers.Where(o => o.Id == id).FirstAsync();
+            model.product = await DB.Products.Select(o => new { o.ProductId, o.Name }).ToDictionaryAsync(o => o.ProductId, o => o.Name);
             return View(model);
         }
 
-        public IActionResult MoveSave(ProdMovement prod, int ProvId)
+        public async Task<IActionResult> MoveSave(ProdMovement prod, int ProvId)
         {
-            Provider prov = DB.Providers.Include(o=>o.ProdMovement).Where(o => o.Id == ProvId).FirstOrDefault();
+            Provider prov = await DB.Providers.Include(o=>o.ProdMovement).Where(o => o.Id == ProvId).FirstOrDefaultAsync();
             ProdMovement move = prov.ProdMovement.Where(o => o.ProductId == prod.ProductId).FirstOrDefault();
             if (move == null)
             {
                 prov.ProdMovement.Add(prod);
-                DB.SaveChanges();
-                Product pr = DB.Products.Where(o => o.ProductId == prod.ProductId).FirstOrDefault();
+                await DB.SaveChangesAsync();
+                Product pr = await DB.Products.Where(o => o.ProductId == prod.ProductId).FirstOrDefaultAsync();
                 pr.Count += prod.Count;
             }
             else
             {
                 int ChangedCount = prod.Count - move.Count;
-                Product product = DB.Products.Where(o => o.ProductId == move.ProductId).First();
+                Product product = await DB.Products.Where(o => o.ProductId == move.ProductId).FirstAsync();
                 product.Count = product.Count + ChangedCount;
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
                 move.Count = prod.Count;
                 move.ProductId = prod.ProductId;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(ProdMoveEdit), new { Id = ProvId });
         }
-        public IActionResult Save(Provider provider)
+        public async Task<IActionResult> Save(Provider provider)
         {
             if (provider.Id == 0)
             {
@@ -83,30 +84,30 @@ namespace Diplom.Controllers
             }
             else
             {
-                var prev = DB.Providers.Include(o => o.ProdMovement).Include(o => o.Department).Where(o => o.Id == provider.Id).First();
+                var prev = await DB.Providers.Include(o => o.ProdMovement).Include(o => o.Department).Where(o => o.Id == provider.Id).FirstAsync();
                 prev.Date = provider.Date;
                 prev.DepartmentId = provider.DepartmentId;
                 prev.ProdMovement = provider.ProdMovement;
-                DB.SaveChanges();
+                await DB.SaveChangesAsync();
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
         [HttpPost]
-        public IActionResult ProdDel(int DelId) 
+        public async Task<IActionResult> ProdDel(int DelId) 
         {
-            ProdMovement prod = DB.ProdMovements.Include(o=>o.Provider).Where(o => o.Id == DelId).First();
-            Product product = DB.Products.Where(o => o.ProductId == prod.ProductId).First();
+            ProdMovement prod = await DB.ProdMovements.Include(o=>o.Provider).Where(o => o.Id == DelId).FirstAsync();
+            Product product = await DB.Products.Where(o => o.ProductId == prod.ProductId).FirstAsync();
             product.Count = product.Count - prod.Count;
             int RedId = prod.Provider.Id;
             DB.ProdMovements.Remove(prod);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(Edit), new { id = RedId });
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            Provider provider = DB.Providers.Include(o => o.ProdMovement).First(o => o.Id == id);
+            Provider provider = await DB.Providers.Include(o => o.ProdMovement).FirstAsync(o => o.Id == id);
             foreach (ProdMovement item in provider.ProdMovement)
             {
                 Product prod = DB.Products.Where(o => o.ProductId == item.ProductId).First();
@@ -114,7 +115,7 @@ namespace Diplom.Controllers
             }
             DB.ProdMovements.RemoveRange(provider.ProdMovement);
             DB.Providers.Remove(provider);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
     }

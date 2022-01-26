@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
@@ -19,7 +20,7 @@ namespace Diplom.Controllers
         {
             DB = ctx;
         }
-        public ActionResult List(int page = 0)
+        public async Task<ActionResult> List(int page = 0)
         {
             int Count = DB.Smartphones.Count();
             int temp = (int)Count / itemPerPage;
@@ -28,24 +29,24 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.Smartphones.Include(o=>o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product).ThenInclude(o=>o.Brand)
+            var result = await DB.Smartphones.Include(o=>o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product).ThenInclude(o=>o.Brand)
                 .Include(o=>o.product).ThenInclude(o=>o.Department).Include(o=>o.product).ThenInclude(o=>o.Type).Include(o=>o.product).ThenInclude(o=>o.Color)
                 .Include(o=>o.ChargingType)
-                .Skip(page * itemPerPage).Take(itemPerPage);
+                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
             return View(result);
         }
-        public IActionResult Edit(int id = 0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             SmartphoneViewModel model = new SmartphoneViewModel();
-            model.Brands = DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Department = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.Processors = DB.Processors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.ScreenTypes = DB.ScreenTypes.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.Types = DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Смартфон").ToDictionary(o => o.Id, o => o.Name);
-            model.OS = DB.OS.Select(o => new { o.id, o.Name }).ToDictionary(o => o.id, o => o.Name);
-            model.Colors = DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.ChargingType = DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem = DB.Smartphones.Include(o => o.product).Where(o => o.Id == id).FirstOrDefault();
+            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Department = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.Processors = await DB.Processors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.ScreenTypes = await DB.ScreenTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Смартфон").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.OS = await DB.OS.Select(o => new { o.id, o.Name }).ToDictionaryAsync(o => o.id, o => o.Name);
+            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.ChargingType = await DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.Smartphones.Include(o => o.product).Where(o => o.Id == id).FirstOrDefaultAsync();
             if (model.EditItem == null)
             {
                 model.EditItem = new Smartphone();
@@ -53,7 +54,7 @@ namespace Diplom.Controllers
             }
             return View(model);
         }
-        public IActionResult Save(Smartphone smartphone, IFormFile UploadFile)
+        public async Task<IActionResult> Save(Smartphone smartphone, IFormFile UploadFile)
         {
             if (UploadFile!=null)
             {
@@ -66,7 +67,7 @@ namespace Diplom.Controllers
             }
             else
             {
-                var prev = DB.Smartphones.Include(o => o.product).Where(o => o.Id == smartphone.Id).First();
+                var prev = await DB.Smartphones.Include(o => o.product).Where(o => o.Id == smartphone.Id).FirstAsync();
                 prev.BatteryCapacity = smartphone.BatteryCapacity;
                 prev.Camera = smartphone.Camera;
                 prev.ChargingTypeId = smartphone.ChargingTypeId;
@@ -97,15 +98,15 @@ namespace Diplom.Controllers
                 prev.product.TypeId = smartphone.product.TypeId;
                 DB.SaveChanges();
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            Smartphone smartphone = DB.Smartphones.Where(o => o.Id == id).First();
+            Smartphone smartphone = await DB.Smartphones.Where(o => o.Id == id).FirstAsync();
             DB.Products.Remove(smartphone.product);
             DB.Smartphones.Remove(smartphone);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
         public string LoadPhoto(IFormFile file, string filePath)

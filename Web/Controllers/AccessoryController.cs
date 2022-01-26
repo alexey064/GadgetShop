@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
-    [Authorize(Roles ="Admin")]
+    [Authorize(Roles = "Admin")]
     public class AccessoryController : CommonCRUDController
     {
         int itemPerPage = 15;
@@ -35,23 +36,23 @@ namespace Diplom.Controllers
                 .Skip((page-1) * itemPerPage).Take(itemPerPage);
             return View(result);
         }
-        public IActionResult Edit(int id=0)
+        public async Task<IActionResult> Edit(int id = 0)
         {
             AccessoryViewModel model = new AccessoryViewModel();
-            model.Brands = DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.department = DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionary(o => o.DepartmentId, o => o.Adress);
-            model.types = DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Аксессуар").ToDictionary(o => o.Id, o => o.Name);
-            model.Colors = DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionary(o => o.Id, o => o.Name);
-            model.EditItem= DB.Accessories.Include(o=>o.product).Where(o => o.Id == id).FirstOrDefault();
-            if (model.EditItem==null)
+            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.department = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
+            model.types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o => o.Category == "Аксессуар").ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
+            model.EditItem = await DB.Accessories.Include(o => o.product).Where(o => o.Id == id).FirstOrDefaultAsync();
+            if (model.EditItem == null)
             {
                 model.EditItem = new Accessory();
                 model.EditItem.product = new Product();
             }
-            return View(model);
+            return View("Edit",model);
         }
         [HttpPost]
-        public IActionResult Save(Accessory accessory, IFormFile UploadFile) 
+        public async Task<IActionResult> Save(Accessory accessory, IFormFile UploadFile) 
         {
             if (UploadFile!=null)
             {
@@ -76,16 +77,16 @@ namespace Diplom.Controllers
                 prev.product.Price = accessory.product.Price;
                 prev.product.TypeId = accessory.product.TypeId;
             }
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             Accessory accessory = DB.Accessories.Where(o => o.Id == id).First();
             DB.Products.Remove(accessory.product);
             DB.Accessories.Remove(accessory);
-            DB.SaveChanges();
+            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
     }
