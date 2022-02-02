@@ -8,72 +8,65 @@
     <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row flex-nowrap">
-            <div class=" flex-column bg-light" style="width:auto">
-                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
-                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-                        <li>
-                            <a href="#submenu1" data-bs-toggle="collapse" class="px-0 align-middle sidebar-a">
-                                <i class="fs-4 bi-grid"></i> <span class="ms-1 d-none d-sm-inline">Linked</span>
-                            </a>
-                            <ul class="collapse nav flex-column ms-1" id="submenu1" data-bs-parent="#menu">
-                              <li class="w-100"><a class="nav-item sidebar-a" asp-controller="@nameof(Accessory)" asp-action="List" name="Button">Accessory</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(Client)" asp-action="List" name="Button">Client</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(Notebook)" asp-action="List" name="Button">Notebook</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(PurchaseHistory)" asp-action="List" name="Button">PurchaseHistory</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(Smartphone)" asp-action="List" name="Button">SmartPhones</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(WireHeadphone)" asp-action="List" name="Button">Wire Headphones</a></li>
-                              <li><a class="nav-item sidebar-a" asp-controller="@nameof(WirelessHeadphone)" asp-action="List" name="Button">Wireless Headphones</a></li>
-                            </ul>
+        <div class="sidenav">
+            <ul class="nav nav-pills mb-0 flex-column" id="menu">
+                <li>
+                    <a href="#submenu1" data-bs-toggle="collapse" class="px-0 align-middle sidebar-a">
+                        <i class="fs-4 bi-grid"></i> <span class="ms-1 d-sm-inline">Linked</span>
+                    </a>
+                    <ul class="collapse nav flex-column ms-1" id="submenu1" data-bs-parent="#menu">
+                        <li class="w-100"><a class="nav-item sidebar-a" asp-controller="@nameof(Accessory)" asp-action="List" name="Button">Accessory</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(Client)" asp-action="List" name="Button">Client</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(Notebook)" asp-action="List" name="Button">Notebook</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(PurchaseHistory)" asp-action="List" name="Button">PurchaseHistory</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(Smartphone)" asp-action="List" name="Button">SmartPhones</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(WireHeadphone)" asp-action="List" name="Button">Wire Headphones</a></li>
+                        <li><a class="nav-item sidebar-a" asp-controller="@nameof(WirelessHeadphone)" asp-action="List" name="Button">Wireless Headphones</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#submenu2" data-bs-toggle="collapse" class=" px-0 align-middle sidebar-a">
+                        <i class="fs-4 bi-grid"></i> <span class="ms-1">Simple</span>
+                    </a>
+                    <ul class="collapse nav flex-column ms-1" id="submenu2" data-bs-parent="#menu">
+                        <li class="w-100">
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Brand)" asp-action="ItemList" name="Button">Brand</a>
                         </li>
                         <li>
-                            <a href="#submenu2" data-bs-toggle="collapse" class=" px-0 align-middle sidebar-a">
-                                <i class="fs-4 bi-grid"></i> <span class="ms-1 d-none d-sm-inline">Simple</span>
-                            </a>
-                            <ul class="collapse nav flex-column ms-1" id="submenu2" data-bs-parent="#menu">
-                                <li class="w-100">
-                                <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Brand)" asp-action="ItemList" name="Button">Brand</a></li>
-                                <li>
-                                    <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Color)" asp-action="ItemList" name="Button">Color</a>
-                                </li>
-                                <li>
-                         <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ChargingType)" asp-action="ItemList" name="Button">Charging type</a>
-                                </li>
-                                <li>
-                             <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Department)" asp-action="ItemList" name="Button">Department</a>
-                                </li>
-                                <li>
-                          <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(MovementType)" asp-action="ItemList" name="Button">MovementType</a>
-                                </li>
-                                <li>
-                                <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(OS)" asp-action="ItemList" name="Button">OS</a>
-                                </li>
-                                <li>
-                           <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Processor)" asp-action="ItemList" name="Button">Processors</a>
-                                </li>
-                                <li>
-                           <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ScreenType)" asp-action="ItemList" name="Button">ScreenType</a>
-                                </li>
-                                <li>
-               <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Diplom.Models.Model.simple.Type)" asp-action="ItemList" name="Button">Type</a>
-                                </li>
-                                <li>
-                      <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Videocard)" asp-action="ItemList" name="Button">Videocard</a>
-                                </li>
-                            </ul>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Color)" asp-action="ItemList" name="Button">Color</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ChargingType)" asp-action="ItemList" name="Button">Charging type</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Department)" asp-action="ItemList" name="Button">Department</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(MovementType)" asp-action="ItemList" name="Button">MovementType</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(OS)" asp-action="ItemList" name="Button">OS</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Processor)" asp-action="ItemList" name="Button">Processors</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ScreenType)" asp-action="ItemList" name="Button">ScreenType</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Diplom.Models.Model.simple.Type)" asp-action="ItemList" name="Button">Type</a>
+                        </li>
+                        <li>
+                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Videocard)" asp-action="ItemList" name="Button">Videocard</a>
                         </li>
                     </ul>
-
-                    <hr>
-                </div>
-            </div>
-            <div class="mx-4 my-4">
-                <div> @RenderBody() </div>
-            </div>
+                </li>
+            </ul>
         </div>
-    </div>
+        <div class="mx-4 my-4 Pcontent">
+            <div> @RenderBody() </div>
+        </div>
 </body>
 </html>
 @if (IsSectionDefined("Scripts"))
-{ @RenderSection("Scripts", false) }
+{@RenderSection("Scripts", false)}

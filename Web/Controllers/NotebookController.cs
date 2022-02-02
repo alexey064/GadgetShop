@@ -32,8 +32,7 @@ namespace Diplom.Controllers
             var result = await DB.Notebooks.Include(o => o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product)
                 .ThenInclude(o => o.Type).Include(o => o.product).ThenInclude(o => o.Brand).Include(o => o.product)
                 .ThenInclude(o => o.Department).Include(o => o.Videocard).Include(o => o.product).ThenInclude(o => o.Color)
-                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
-            
+                .Skip((page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)

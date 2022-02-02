@@ -20,37 +20,7 @@ namespace Diplom.Controllers
             DB = context;
             var connectionString = DB.Database.GetDbConnection().ConnectionString;
         }
-        public IActionResult Main() 
-        {
-            MainPageViewModel model = new MainPageViewModel();
-            model.NewlyAdded = DB.Products.Include(o => o.Accessory)
-                .Include(o => o.Notebook).ThenInclude(o=>o.OS).Include(o=>o.Notebook).ThenInclude(o=>o.Videocard).Include(o=>o.Notebook).ThenInclude(o=>o.Processor)
-                .Include(o => o.Smartphone).ThenInclude(o=>o.OS).Include(o=>o.Smartphone).ThenInclude(o=>o.Processor)
-                .Include(o=> o.WireHeadphones)
-                .Include(o=>o.WirelessHeadphones)
-                .OrderByDescending(o=>o.AddDate).Take(5).ToList();
-            Dictionary<int, int> temp = DB.ProdMovements.Where(o => o.MovementTypeId == 2).GroupBy(o => o.ProductId)
-                .Select(g => new { ProductId = g.Key, Count = g.Sum(o => o.Count)}).OrderByDescending(o=>o.Count)
-                .Take(5).ToDictionary(o=>o.ProductId, o=>o.Count);
-            model.MostBuyed = new List<Product>();
-            foreach (KeyValuePair<int, int> item in temp)
-            {
-                model.MostBuyed.Add(DB.Products.Include(o => o.Accessory)
-         .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
-                .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
-                .Include(o => o.WireHeadphones)
-                .Include(o => o.WirelessHeadphones)
-                .Where(o => o.ProductId == item.Key).FirstOrDefault());
-            }
-            model.MaxDiscounted = DB.Products.Include(o => o.Accessory)
-         .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor)
-                .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
-                .Include(o => o.WireHeadphones)
-                .Include(o => o.WirelessHeadphones)
-                .Where(o => o.DiscountDate > System.DateTime.Now).OrderByDescending(o => o.Discount).Take(5).ToList();
-            return View(model);
-        }
-        public async Task<IActionResult> MainAsync()
+        public async Task<IActionResult> Main()
         {
             MainPageViewModel model = new MainPageViewModel();
             model.NewlyAdded = await DB.Products.Include(o => o.Accessory)

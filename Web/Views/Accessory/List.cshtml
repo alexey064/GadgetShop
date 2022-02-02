@@ -3,12 +3,6 @@
 @{
     Layout = "_Sidebar";
 }
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>List</title>
-</head>
-<body>
     <p>
         <a class="btn btn-primary" asp-action="Edit">Create New</a>
     </p>
@@ -52,7 +46,7 @@
                 {
                     <tr>
                         <td>
-                            <a class="sidebar-a" name="id" asp-route-id="@item.Id" asp-action="Edit">
+                            <a class="item" name="id" asp-route-id="@item.Id" asp-action="Edit">
                                 @Html.DisplayFor(modelItem => item.product.Name)
                             </a>
                             (<a class="form-label" name="id" value="@item.Id" asp-action="Delete">Delete</a>
@@ -105,5 +99,3 @@
             </div>
         </div>
     }
-</body>
-</html>

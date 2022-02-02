@@ -5,14 +5,28 @@
     z-index: 1; /* Stay on top */
     top: 0; /* Stay at the top */
     left: 0;
-    background-color: #111; /* Black */
+    background-color: rgb(92, 85, 107); /* Black */
     overflow-x: hidden; /* Disable horizontal scroll */
     padding-top: 20px;
 }
 table{
     width:auto;
 }
-.sidebar-a{
-    text-decoration:none !important;
-    color:black !important;
+.sidebar-a {
+    text-decoration: none !important;
+    color: rgb(219, 219, 219);
+}
+
+.Pcontent{
+    position:absolute;
+    left:160px;
+    width:auto;
+    max-width:800px;
+}
+a.sidebar-a:hover {
+    color: rgb(255, 255, 255);
+}
+.item {
+    text-decoration: none !important;
+    color: black;
 }

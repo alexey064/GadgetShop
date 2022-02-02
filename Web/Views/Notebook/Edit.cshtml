@@ -10,7 +10,7 @@
     <h4>Notebook</h4>
     <hr />
     <div class="row">
-        <div class="col-md-4">
+        <div class="col">
             <form asp-action="Save" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />

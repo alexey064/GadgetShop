@@ -4,9 +4,9 @@
 }
 <!DOCTYPE html>
     <h4>Accessory</h4>
-    <hr />
+    <hr/>
     <div class="row">
-        <div class="col-md-4">
+        <div class="col">
             <form asp-action="Save" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="All" class="text-danger"></div>
                     <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />
@@ -106,6 +106,7 @@
             </form>
         </div>
     </div>
+
     <div>
         <a class="btn btn-danger" asp-action="List">Back to List</a>
     </div>

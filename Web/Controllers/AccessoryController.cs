@@ -1,7 +1,6 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
 using Diplom.Models.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    
     public class AccessoryController : CommonCRUDController
     {
         int itemPerPage = 15;
