@@ -1,9 +1,9 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
 using Diplom.Models.ViewModel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,7 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Web;
 
@@ -22,6 +23,7 @@ namespace Diplom.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ApiController : ControllerBase
     {
         ShopContext DB;
@@ -35,6 +37,7 @@ namespace Diplom.Controllers
         }
         [Route("NewlyAdded")]
         [HttpGet]
+        [AllowAnonymous]
         public async Task<string> NewlyAdded()
         {
             MainPageViewModel model = new MainPageViewModel();
@@ -56,6 +59,7 @@ namespace Diplom.Controllers
         }
         [Route("Catalog")]
         [HttpGet]
+        [AllowAnonymous]
         public async Task<string> Catalog(string type) 
         {
             List<Product> catalog = new List<Product>();
@@ -100,6 +104,7 @@ namespace Diplom.Controllers
         }
         [HttpGet]
         [Route("GetProduct")]
+        [AllowAnonymous]
         public async Task<string> GetProduct(int id) 
         {
             Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o => o.Type)
@@ -116,31 +121,28 @@ namespace Diplom.Controllers
         }
         [Route("Login")]
         [HttpPost]
-        
+        [AllowAnonymous]
         public async Task<string> Login(Dictionary<string, string> dict) 
         {
+
             var result = await signInManager.PasswordSignInAsync(dict["Username"],dict["Password"],true, true);
             if (!result.Succeeded)
             {
                 return "wrong UserName or Password";
             }
+            var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["Username"]) };
             var now = DateTime.UtcNow;
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
-                    notBefore: now,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        claims: claims,
+                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(AuthOptions.MINUTES)),
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            var response = new
-            {
-                access_token = encodedJwt,
-                username = User.Identity.Name
-            };
 
-            string json = JsonConvert.SerializeObject(response, new JsonSerializerSettings
+            string json = JsonConvert.SerializeObject(encodedJwt, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             });
@@ -152,14 +154,12 @@ namespace Diplom.Controllers
         public async Task<string> GetShoppingCart() 
         {
             List<Product> products = new List<Product>();
-            if (User.Identity.Name != null)
-            {
                 PurchaseHistory hist = await DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product).Include(o => o.Client)
-                    .Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefaultAsync();
+                    .Where(o => o.Client.NickName == GetUsername() && o.StatusId == 11).FirstOrDefaultAsync();
                 if (hist == null)
                 {
                     hist = new PurchaseHistory();
-                    hist.Client = await DB.Clients.Where(o => o.NickName == User.Identity.Name).FirstAsync();
+                    hist.Client = await DB.Clients.Where(o => o.NickName == GetUsername()).FirstAsync();
                     hist.StatusId = 11;
                     hist.DepartmentId = 1;
                     hist.ProdMovement = new List<ProdMovement>();
@@ -172,7 +172,7 @@ namespace Diplom.Controllers
                     item.Product.Count = item.Count;
                     products.Add(item.Product);
                 }
-            }
+            
             string json = JsonConvert.SerializeObject(products, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -194,11 +194,11 @@ namespace Diplom.Controllers
             if (test.Count > 0)
             {
                 int Count = 1;
-                PurchaseHistory hist = await DB.PurchaseHistories.Include(o => o.ProdMovement).Include(o => o.Client).Where(o => o.Client.NickName == User.Identity.Name && o.StatusId == 11).FirstOrDefaultAsync();
+                PurchaseHistory hist = await DB.PurchaseHistories.Include(o => o.ProdMovement).Include(o => o.Client).Where(o => o.Client.NickName == GetUsername() && o.StatusId == 11).FirstOrDefaultAsync();
                 if (hist == null)
                 {//Если на пользователя не зарегистрирована корзина продуктов, то надо её создать
                     hist = new PurchaseHistory();
-                    hist.Client = await DB.Clients.Where(o => o.NickName == User.Identity.Name).FirstOrDefaultAsync();
+                    hist.Client = await DB.Clients.Where(o => o.NickName == GetUsername()).FirstOrDefaultAsync();
                     hist.StatusId = 11;
                     hist.ProdMovement = new List<ProdMovement>();
                     DB.PurchaseHistories.Add(hist);
@@ -233,6 +233,11 @@ namespace Diplom.Controllers
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
             });
             return json;
+        }
+        private string GetUsername() 
+        {
+            return HttpContext.User.Claims.ToArray()[0].Value;
+
         }
     }
 }

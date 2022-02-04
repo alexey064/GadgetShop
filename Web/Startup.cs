@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Web;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Logging;
 
 namespace Diplom
 {
@@ -32,24 +33,24 @@ namespace Diplom
                         options.RequireHttpsMetadata = false;
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
-                            // укзывает, будет ли валидироваться издатель при валидации токена
+                            NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                            // указывает, будет ли валидироваться издатель при валидации токена
                             ValidateIssuer = true,
                             // строка, представляющая издателя
                             ValidIssuer = AuthOptions.ISSUER,
-
                             // будет ли валидироваться потребитель токена
                             ValidateAudience = true,
                             // установка потребителя токена
                             ValidAudience = AuthOptions.AUDIENCE,
                             // будет ли валидироваться время существования
                             ValidateLifetime = true,
-
                             // установка ключа безопасности
                             IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                             // валидация ключа безопасности
                             ValidateIssuerSigningKey = true,
                         };
                     });
+            services.AddAuthorization();
             services.AddControllersWithViews();
             services.AddDistributedMemoryCache();
             services.AddRazorPages();
@@ -64,7 +65,7 @@ namespace Diplom
             opt =>
                 {
                     //configure your other properties
-                    opt.LoginPath = "/shop/main";
+                    //opt.LoginPath = "/shop/main";
                 });
             
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
@@ -76,6 +77,7 @@ namespace Diplom
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDeveloperExceptionPage();
+            IdentityModelEventSource.ShowPII = true;
             app.UseStatusCodePages();
             app.UseStaticFiles();
             app.UseRouting();
