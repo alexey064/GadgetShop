@@ -63,37 +63,22 @@ namespace Diplom.Controllers
         public async Task<string> Catalog(string type) 
         {
             List<Product> catalog = new List<Product>();
-            int count = 0;
             switch (type)
             {
                 case nameof(Notebook):
-                    count = DB.Notebooks.Count();
-                    catalog = await DB.Products.Include(o => o.Brand).Include(o => o.Color)
-                        .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Processor)
-                        .Include(o => o.Notebook).ThenInclude(o => o.ScreenType).Include(o => o.Notebook).ThenInclude(o => o.Videocard)
-                        .Where(o => o.Notebook != null).ToListAsync();
+                    catalog = await DB.Products.Where(o => o.Notebook != null).ToListAsync();
                     break;
                 case nameof(Smartphone):
-                    count = await DB.Smartphones.CountAsync();
-                    catalog = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Smartphone)
-                        .Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.OS)
-                        .Include(o => o.Smartphone).ThenInclude(o => o.Processor).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
-                        .Where(o => o.Smartphone != null).ToListAsync();
+                    catalog = await DB.Products.Where(o => o.Smartphone != null).ToListAsync();
                     break;
                 case nameof(Accessory):
-                    count = await DB.Accessories.CountAsync();
-                    catalog = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory)
-                    .Where(o => o.Accessory != null).ToListAsync();
+                    catalog = await DB.Products.Where(o => o.Accessory != null).ToListAsync();
                     break;
                 case nameof(WireHeadphone):
-                    count = await DB.WireHeadphones.CountAsync();
-                    catalog = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
-                        .Where(o => o.WireHeadphones != null).ToListAsync();
+                    catalog = await DB.Products.Where(o => o.WireHeadphones != null).ToListAsync();
                     break;
                 case nameof(WirelessHeadphone):
-                    count = await DB.WirelessHeadphones.CountAsync();
-                    catalog = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
-                        .Where(o => o.WirelessHeadphones != null).ToListAsync();
+                    catalog = await DB.Products.Where(o => o.WirelessHeadphones != null).ToListAsync();
                     break;
             }
             string json = JsonConvert.SerializeObject(catalog, new JsonSerializerSettings
