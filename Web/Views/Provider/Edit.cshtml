@@ -16,7 +16,7 @@
     <h4>Provider</h4>
     <hr />
     <div class="row">
-        <div class="col-md-4">
+        <div class="col">
             <form asp-action="Save">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />
@@ -51,7 +51,7 @@
                         <tr>
                             <td>@item.Product.Name</td>
                             <td>@item.Count</td>
-                            <td><button class="btn btn-danger" type="submit" name="DelId" value="@item.Id" asp-action="ProdDel"/></td>
+                            <td><button class="btn btn-danger" type="submit" name="DelId" value="@item.Id" asp-action="ProdDel"/>Delete</td>
                         </tr>
                     }
                 </table>
@@ -59,7 +59,7 @@
                     <input type="submit" value="Save" class="btn btn-success" />
                     @if (Model.EditItem.Id != 0)
                     {
-                        <button name="id" value="@Model.EditItem.Id" class="btn btn-primary" type="submit" asp-action="ProdMoveEdit">Товары</button>
+                        <a role="button" name="id" asp-route-id="@Model.EditItem.Id" class="btn btn-primary" asp-action="ProdMoveEdit">Товары</a>
                     }
                 </div>
             </form>

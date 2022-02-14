@@ -92,9 +92,11 @@ namespace Diplom.Controllers
         [AllowAnonymous]
         public async Task<string> GetProduct(int id) 
         {
-            Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o => o.Type)
-            .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.ScreenType)
-            .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor).Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
+             Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o => o.Type)
+            .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook)
+            .ThenInclude(o => o.Processor).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.ScreenType)
+            .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
+            .Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
             .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
             .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
             .Where(o => o.ProductId == id).FirstOrDefaultAsync();
@@ -109,14 +111,12 @@ namespace Diplom.Controllers
         [AllowAnonymous]
         public async Task<string> Login(Dictionary<string, string> dict) 
         {
-
             var result = await signInManager.PasswordSignInAsync(dict["Username"],dict["Password"],true, true);
             if (!result.Succeeded)
             {
                 return "wrong UserName or Password";
             }
             var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["Username"]) };
-            var now = DateTime.UtcNow;
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
                         issuer: AuthOptions.ISSUER,
@@ -126,7 +126,6 @@ namespace Diplom.Controllers
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-
             string json = JsonConvert.SerializeObject(encodedJwt, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -135,7 +134,7 @@ namespace Diplom.Controllers
         }
         [HttpGet]
         [Authorize]
-        [Route("GetShoppingCart")]
+        [Route("ShoppingCart")]
         public async Task<string> GetShoppingCart() 
         {
             List<Product> products = new List<Product>();
@@ -157,7 +156,6 @@ namespace Diplom.Controllers
                     item.Product.Count = item.Count;
                     products.Add(item.Product);
                 }
-            
             string json = JsonConvert.SerializeObject(products, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -167,14 +165,9 @@ namespace Diplom.Controllers
         [Authorize]
         [HttpPost]
         [Route("ShoppingCart")]
-        public async Task<string> ShoppingCart([FromBody] Dictionary<string, int> param) 
+        public async Task<string> PostShoppingCart([FromBody] Dictionary<string, int> param) 
         {
-
-            var response = new
-            {
-                result = "false"
-            };
-            
+            string result = "false";
             Product test = await DB.Products.FindAsync(param["id"]);
             if (test.Count > 0)
             {
@@ -208,21 +201,47 @@ namespace Diplom.Controllers
                 Product product = DB.Products.Where(o => o.ProductId == param["id"]).FirstOrDefault();
                 product.Count = product.Count - Count;
                 await DB.SaveChangesAsync();
-                response = new
-                {
-                    result = "true"
-                };
+                result = "true";
             }
-            string json = JsonConvert.SerializeObject(response, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+            return result;
         }
+        [Authorize]
+        [HttpDelete]
+        [Route("ShoppingCart")]
+        public async Task<string> DeleteShoppingCart(int id) 
+        {
+            try
+            {
+                PurchaseHistory hist = await DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product)
+                  .Include(o => o.Client).Where(o => o.Client.NickName == GetUsername() && o.StatusId == 11).FirstOrDefaultAsync();
+                int count = hist.ProdMovement.Where(o => o.Product.ProductId == id).Select(o => o.Count).First();
+                Product product = DB.Products.Where(o => o.ProductId == id).First();
+                hist.ProdMovement.Remove(hist.ProdMovement.Where(o => o.ProductId == id).First());
+                product.Count = product.Count + count;
+                await DB.SaveChangesAsync();
+                return "true";
+            }
+            catch (Exception e) { return "false"; }
+        }
+        [Authorize]
+        [HttpPatch]
+        [Route("CompleteOrder")]
+        public async Task<string> CompleteOrder(int id) 
+        {
+            try
+            {
+                PurchaseHistory purch = await DB.PurchaseHistories.Where(o => o.Id == id).FirstAsync();
+                purch.StatusId = 13;
+                purch.PurchaseDate = DateTime.Now;
+                await DB.SaveChangesAsync();
+                return "true";
+            }
+            catch (Exception e) { return "false"; }
+        }
+
         private string GetUsername() 
         {
             return HttpContext.User.Claims.ToArray()[0].Value;
-
         }
     }
 }

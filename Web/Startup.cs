@@ -34,6 +34,7 @@ namespace Diplom
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+                            
                             // указывает, будет ли валидироваться издатель при валидации токена
                             ValidateIssuer = true,
                             // строка, представляющая издателя

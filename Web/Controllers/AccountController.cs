@@ -62,19 +62,7 @@ namespace Diplom.Controllers
             {
                 var result =
                     await signInManager.PasswordSignInAsync(model.Name, model.Password, model.RememberMe, false);
-                if (result.Succeeded)
-                {
-                    // проверяем, принадлежит ли URL приложению
-                    if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
-                    {
-                        return RedirectToAction("main", "shop");
-                    }
-                    else
-                    {
-                        return RedirectToAction("main", "shop");
-                    }
-                }
-                else
+                if (!result.Succeeded)
                 {
                     ModelState.AddModelError("", "Неправильный логин и (или) пароль");
                 }
@@ -93,7 +81,7 @@ namespace Diplom.Controllers
             IdentityResult Result=await userManager.ChangePasswordAsync(user, oldPassword, newPassword);
             if (Result.Succeeded)
             {
-                //роль успешно изменен
+                //пароль успешно изменен
                 return RedirectToAction("AccountSetting", "Shop");
             }
             else return RedirectToAction("AccountSetting", "Shop");
