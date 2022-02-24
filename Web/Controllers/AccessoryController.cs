@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace Diplom.Controllers
 {
-    
     public class AccessoryController : CommonCRUDController
     {
         int itemPerPage = 15;

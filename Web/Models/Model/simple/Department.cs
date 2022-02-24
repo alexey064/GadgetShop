@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Diplom.Models.Model.simple
@@ -12,7 +11,6 @@ namespace Diplom.Models.Model.simple
             Products = new HashSet<Product>();
             Providers = new HashSet<Provider>();
         }
-
         public int DepartmentId { get; set; }
         [Required]
         public string Adress { get; set; }

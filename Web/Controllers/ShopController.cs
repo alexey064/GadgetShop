@@ -1,7 +1,6 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
 using Diplom.Models.ViewModel;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;

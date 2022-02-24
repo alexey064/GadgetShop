@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
-
 namespace Diplom.Models.Model.simple
 {
     public class MovementType
@@ -11,7 +8,6 @@ namespace Diplom.Models.Model.simple
         {
             ProdMovements = new HashSet<ProdMovement>();
         }
-
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }

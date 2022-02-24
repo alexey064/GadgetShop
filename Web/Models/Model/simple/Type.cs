@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Diplom.Models.Model.simple
@@ -13,13 +12,11 @@ namespace Diplom.Models.Model.simple
             Products = new HashSet<Product>();
             PurchaseHistories = new HashSet<PurchaseHistory>();
         }
-
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
         public string Category { get; set; }
-
         public virtual ICollection<Client> Clients { get; set; }
         public virtual ICollection<ProdMovement> ProdMovements { get; set; }
         public virtual ICollection<Product> Products { get; set; }

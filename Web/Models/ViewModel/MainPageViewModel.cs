@@ -1,11 +1,5 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
-using Microsoft.AspNetCore.Identity;
-using System;
+﻿using Diplom.Models.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Diplom.Models.ViewModel
 {
     public class MainPageViewModel

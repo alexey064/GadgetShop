@@ -52,7 +52,6 @@ namespace Diplom.Controllers
             model.product = await DB.Products.Select(o => new { o.ProductId, o.Name }).ToDictionaryAsync(o => o.ProductId, o => o.Name);
             return View(model);
         }
-
         public async Task<IActionResult> MoveSave(ProdMovement prod, int ProvId)
         {
             Provider prov = await DB.Providers.Include(o=>o.ProdMovement).Where(o => o.Id == ProvId).FirstOrDefaultAsync();

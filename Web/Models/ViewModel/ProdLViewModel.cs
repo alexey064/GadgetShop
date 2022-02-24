@@ -1,7 +1,5 @@
 ﻿using Diplom.Models.Model;
-using System;
 using System.Collections.Generic;
-
 namespace Diplom.Models.ViewModel
 {
     public class ProdLViewModel

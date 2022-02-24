@@ -10,7 +10,6 @@ namespace Diplom.Controllers
         {
             return View();
         }
-
         public string LoadPhoto(IFormFile file, string filePath, string type)
         {
             if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))

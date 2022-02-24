@@ -1,4 +1,3 @@
-using Diplom.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -23,8 +22,6 @@ namespace Diplom
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -61,14 +58,7 @@ namespace Diplom
                 options.IdleTimeout = TimeSpan.FromSeconds(1000);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
-            });
-            services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme,
-            opt =>
-                {
-                    //configure your other properties
-                    //opt.LoginPath = "/shop/main";
-                });
-            
+            });            
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
             services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=LAPTOP-09UR5JLB;Database=Shop;integrated security=true;"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();

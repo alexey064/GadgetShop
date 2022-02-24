@@ -1,16 +1,11 @@
 ﻿using Diplom.Models.Model.simple;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-
-
 namespace Diplom.Models.Model
 {
     public class Client
     {
         public Client()
         {
-
         }
         [Key]
         public int Id { get; set; }

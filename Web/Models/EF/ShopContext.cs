@@ -11,7 +11,6 @@ namespace Diplom.Models.EF
         public ShopContext()
         {
         }
-
         public ShopContext(DbContextOptions<ShopContext> options)
             : base(options)
         {

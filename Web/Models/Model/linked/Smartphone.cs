@@ -1,7 +1,5 @@
 ﻿using Diplom.Models.Model.simple;
-using System;
 using System.ComponentModel.DataAnnotations;
-
 namespace Diplom.Models.Model
 {
     public class Smartphone 
@@ -27,7 +25,6 @@ namespace Diplom.Models.Model
         public int ProcessorId { get; set; }
         public string Optional { get; set; }
         public string ScreenResolution { get; set; }
-
         public virtual OS OS { get; set; }
         public virtual int ProductId { get; set; }
         public virtual Product product { get; set; }

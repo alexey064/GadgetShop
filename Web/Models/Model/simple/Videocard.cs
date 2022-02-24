@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-
-
 namespace Diplom.Models.Model.simple
 {
     public class Videocard

@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
-
 namespace Diplom.Models.Model
 {
     public class Accessory 

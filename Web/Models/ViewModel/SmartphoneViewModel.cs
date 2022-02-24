@@ -1,10 +1,5 @@
-﻿using Diplom.Models.Interfaces;
-using Diplom.Models.Model;
-using System;
+﻿using Diplom.Models.Model;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Diplom.Models.ViewModel
 {
     public class SmartphoneViewModel

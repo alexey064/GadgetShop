@@ -10,7 +10,6 @@ namespace Diplom.Models.Model
     {
         public PurchaseHistory()
         { 
-        
         }
         public int Id { get; set; }
         [Required]
@@ -21,7 +20,6 @@ namespace Diplom.Models.Model
         public int DepartmentId { get; set; }
         [Required]
         public int TotalCost { get; set; }
-
         [ForeignKey("ClientId")]
         public virtual Client Client { get; set; }
         [ForeignKey("SellerId")]
