@@ -1,6 +1,5 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
-using Diplom.Models.ViewModel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,11 +12,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Principal;
 using System.Threading.Tasks;
 using Web;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Diplom.Controllers
 {
@@ -40,22 +36,46 @@ namespace Diplom.Controllers
         [AllowAnonymous]
         public async Task<string> NewlyAdded()
         {
-            MainPageViewModel model = new MainPageViewModel();
-            model.NewlyAdded = await DB.Products.OrderByDescending(o => o.AddDate).Take(5).ToListAsync();
-            Dictionary<int, int> temp = await DB.ProdMovements.Where(o => o.MovementTypeId == 2).GroupBy(o => o.ProductId)
+            try
+            {
+                List<Product> output = await DB.Products.OrderByDescending(o => o.AddDate).Take(5).ToListAsync();
+                return ConvertToJson(output);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("MostBuyed")]
+        public async Task<string> MostBuyed() 
+        {
+            try
+            {
+                Dictionary<int, int> temp = await DB.ProdMovements.Where(o => o.MovementTypeId == 2).GroupBy(o => o.ProductId)
                 .Select(g => new { ProductId = g.Key, Count = g.Sum(o => o.Count) }).OrderByDescending(o => o.Count)
                 .Take(5).ToDictionaryAsync(o => o.ProductId, o => o.Count);
-            model.MostBuyed = new List<Product>();
-            foreach (KeyValuePair<int, int> item in temp)
-            {
-                model.MostBuyed.Add(DB.Products.Where(o => o.ProductId == item.Key).FirstOrDefault());
+                List<Product> output = new List<Product>();
+                foreach (KeyValuePair<int, int> item in temp)
+                {
+                    output.Add(DB.Products.Where(o => o.ProductId == item.Key).FirstOrDefault());
+                }
+                return ConvertToJson(output);
             }
-            model.MaxDiscounted = await DB.Products.Where(o => o.DiscountDate > System.DateTime.Now).OrderByDescending(o => o.Discount).Take(5).ToListAsync();
-            string json = JsonConvert.SerializeObject(model, new JsonSerializerSettings
+            catch (Exception e) { return e.Message; }
+        }
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("MostDiscounted")]
+        public async Task<string> MostDiscounted() 
+        {
+            try
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+                List<Product> output = await DB.Products.Where(o => o.DiscountDate > System.DateTime.Now).OrderByDescending(o => o.Discount).Take(5).ToListAsync();
+                return ConvertToJson(output);
+            }
+            catch (Exception e) { return e.Message; }
         }
         [Route("Catalog")]
         [HttpGet]
@@ -81,30 +101,30 @@ namespace Diplom.Controllers
                     catalog = await DB.Products.Where(o => o.WirelessHeadphones != null).ToListAsync();
                     break;
             }
-            string json = JsonConvert.SerializeObject(catalog, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+            return ConvertToJson(catalog);
         }
         [HttpGet]
         [Route("GetProduct")]
         [AllowAnonymous]
         public async Task<string> GetProduct(int id) 
         {
-             Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o => o.Type)
-            .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook)
-            .ThenInclude(o => o.Processor).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.ScreenType)
-            .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
-            .Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
-            .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
-            .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
-            .Where(o => o.ProductId == id).FirstOrDefaultAsync();
-            string json = JsonConvert.SerializeObject(model, new JsonSerializerSettings
+            try
             {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+                Product model = await DB.Products.Include(o => o.Brand).Include(o => o.Color).Include(o => o.Accessory).Include(o => o.Type)
+               .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook)
+               .ThenInclude(o => o.Processor).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.ScreenType)
+               .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor)
+               .Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
+               .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
+               .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType)
+               .Where(o => o.ProductId == id).FirstOrDefaultAsync();
+                string json = JsonConvert.SerializeObject(model, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+                return json;
+            }
+            catch (Exception e) { return e.Message; }
         }
         [Route("Login")]
         [HttpPost]
@@ -125,12 +145,7 @@ namespace Diplom.Controllers
                         expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(AuthOptions.MINUTES)),
                         signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            string json = JsonConvert.SerializeObject(encodedJwt, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+            return ConvertToJson(encodedJwt);
         }
         [HttpGet]
         [Authorize]
@@ -156,11 +171,7 @@ namespace Diplom.Controllers
                     item.Product.Count = item.Count;
                     products.Add(item.Product);
                 }
-            string json = JsonConvert.SerializeObject(products, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            return json;
+            return ConvertToJson(products);
         }
         [Authorize]
         [HttpPost]
@@ -238,10 +249,16 @@ namespace Diplom.Controllers
             }
             catch (Exception e) { return "false"; }
         }
-
         private string GetUsername() 
         {
             return HttpContext.User.Claims.ToArray()[0].Value;
+        }
+        private string ConvertToJson(object item) 
+        {
+            return JsonConvert.SerializeObject(item, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
         }
     }
 }
