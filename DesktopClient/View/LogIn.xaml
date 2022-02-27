@@ -1,0 +1,63 @@
+﻿<Window x:Class="DesktopClient.LogIn"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesktopClient.ViewModel"
+        xmlns:convert="clr-namespace:DesktopClient.Converter"
+        mc:Ignorable="d"
+        Title="LogIn" Height="220" Width="400" Closing="Window_Closing">
+    <Window.Resources>
+        <convert:LoginConverter x:Key="LogiConvert"/>
+    </Window.Resources>
+    <Window.DataContext>
+        <local:LogInViewModel/>
+    </Window.DataContext>
+    <TabControl>
+        <TabItem Header="LogIn">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <Label Content="Логин" Width="100"/>
+                    <TextBox x:Name="Login" MinWidth="200"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="пароль" Width="100"/>
+                    <TextBox x:Name="Password" MinWidth="200" />
+                </StackPanel>
+                <Label Name="ErrorMessage" Margin="8" Content="{Binding ErrorMessage}"/>
+                <Button x:Name="SignIn" Content="Войти" Command="{Binding loginCommand}">
+                    <Button.CommandParameter>
+                        <MultiBinding Converter="{StaticResource LogiConvert}">
+                            <Binding ElementName="Login" Path="Text"/>
+                            <Binding ElementName="Password" Path="Text"/>
+                        </MultiBinding>
+                    </Button.CommandParameter>
+                </Button>
+                <Button x:Name="ForgotPassword" Content="Забыли пароль"/>
+                <Button x:Name="SignInAsGuest" Content="Войти как гость"/>
+            </StackPanel>
+        </TabItem>
+        <TabItem Header="Register">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Width="120" Content="имя пользователя"/>
+                    <TextBox Width="150" x:Name="NickName"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Width="120" Content="Email"/>
+                    <TextBox Width="150" x:Name="Email"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Width="120" Content="пароль"/>
+                    <TextBox Width="150" x:Name="PasswordReg"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label Width="120" Content="подтверждение"/>
+                    <TextBox Width="150" x:Name="ConfirmPassword"/>
+                </StackPanel>
+                <Label x:Name="RegErrorMessage" Margin="0,0,0,10"/>
+                <Button x:Name="Register" Content="Зарегистрироваться" Margin="50,0,50,0"/>
+            </StackPanel>
+        </TabItem>
+    </TabControl>
+</Window>

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{442D7E21-5DA7-433E-AAD7-B3AF1846DBF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesktopClient", "DesktopClient\DesktopClient.csproj", "{2F59D302-3631-4051-B794-21CEEAFF518B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{442D7E21-5DA7-433E-AAD7-B3AF1846DBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{442D7E21-5DA7-433E-AAD7-B3AF1846DBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{442D7E21-5DA7-433E-AAD7-B3AF1846DBF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F59D302-3631-4051-B794-21CEEAFF518B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F59D302-3631-4051-B794-21CEEAFF518B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F59D302-3631-4051-B794-21CEEAFF518B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F59D302-3631-4051-B794-21CEEAFF518B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
