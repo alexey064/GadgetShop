@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Web;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
+using Web.Repository;
 
 namespace Diplom
 {
@@ -58,7 +59,8 @@ namespace Diplom
                 options.IdleTimeout = TimeSpan.FromSeconds(1000);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
-            });            
+            });
+            services.AddTransient<AccessoryRepository>();
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
             services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=LAPTOP-09UR5JLB;Database=Shop;integrated security=true;"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();

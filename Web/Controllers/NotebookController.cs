@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository;
 
 namespace Diplom.Controllers
 {
@@ -16,9 +17,11 @@ namespace Diplom.Controllers
     {
         int itemPerPage = 15;
         private ShopContext DB;
-        public NotebookController(ShopContext ctx)
+        private NotebookRepository Repo;
+        public NotebookController(ShopContext ctx, NotebookRepository repo)
         {
             DB = ctx;
+            Repo = repo;
         }
         public async Task<ActionResult> List(int page = 1)
         {
@@ -29,10 +32,7 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = await DB.Notebooks.Include(o => o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product)
-                .ThenInclude(o => o.Type).Include(o => o.product).ThenInclude(o => o.Brand).Include(o => o.product)
-                .ThenInclude(o => o.Department).Include(o => o.Videocard).Include(o => o.product).ThenInclude(o => o.Color)
-                .Skip((page-1) * itemPerPage).Take(itemPerPage).ToListAsync();
+            var result = Repo.GetList((page - 1) * itemPerPage, itemPerPage);
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)
@@ -46,7 +46,7 @@ namespace Diplom.Controllers
             model.OS = await DB.OS.Select(o => new { o.id, o.Name }).ToDictionaryAsync(o => o.id, o => o.Name);
             model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
             model.Videocards = await DB.Videocards.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.EditItem = await DB.Notebooks.Include(o => o.product).Where(o => o.Id == id).FirstOrDefaultAsync();
+            model.EditItem = Repo.Get(id);
             if (model.EditItem == null)
             {
                 model.EditItem = new Notebook();
@@ -60,50 +60,13 @@ namespace Diplom.Controllers
             {
                 notebook.product.Photo = LoadPhoto(UploadFile, notebook.product.Photo);
             }
-            if (notebook.Id == 0)
-                {
-                notebook.product.AddDate = System.DateTime.Now;
-                    DB.Notebooks.Add(notebook);
-                }
-                else
-                {
-                var prev = DB.Notebooks.Include(o => o.product).Where(o => o.Id == notebook.Id).First();
-                prev.ProcessorId = notebook.ProcessorId;
-                prev.VideocardID = notebook.VideocardID;
-                prev.OSId = notebook.OSId;
-                prev.RAMCount = notebook.RAMCount;
-                prev.HDDSize = notebook.HDDSize;
-                prev.SSDSize = notebook.SSDSize;
-                prev.ScreenResolution = notebook.ScreenResolution;
-                prev.ScreenSize = notebook.ScreenSize;
-                prev.Outputs = notebook.Outputs;
-                prev.Camera = notebook.Camera;
-                prev.Optional = notebook.Optional;
-                prev.WirelessCommunication = notebook.WirelessCommunication;
-                prev.ScreenTypeId = notebook.ScreenTypeId;
-                prev.BatteryCapacity = notebook.BatteryCapacity;
-                prev.Weight = notebook.Weight;
-                prev.product.BrandId = notebook.product.BrandId;
-                prev.product.ColorId = notebook.product.ColorId;
-                prev.product.DepartmentId = notebook.product.DepartmentId;
-                prev.product.Description = notebook.product.Description;
-                prev.product.Discount = notebook.product.Discount;
-                prev.product.DiscountDate = notebook.product.DiscountDate;
-                prev.product.Name = notebook.product.Name;
-                prev.product.Photo = notebook.product.Photo;
-                prev.product.Price = notebook.product.Price;
-                prev.product.TypeId = notebook.product.TypeId;
-            }
-                await DB.SaveChangesAsync();
-                return RedirectToAction(nameof(List));
+            Repo.Change(notebook);
+            return RedirectToAction(nameof(List));
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            Notebook notebook = DB.Notebooks.Where(o => o.Id == id).First();
-            DB.Products.Remove(notebook.product);
-            DB.Notebooks.Remove(notebook);
-            await DB.SaveChangesAsync();
+            Repo.Delete(id);
             return RedirectToAction(nameof(List));
         }
         public string LoadPhoto(IFormFile file, string filePath) 
