@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.DBDataSource;
 
 namespace Diplom.Controllers
 {
@@ -14,10 +15,14 @@ namespace Diplom.Controllers
     {
         private ShopContext DB;
         int itemPerPage = 10;
-        public ShopController(ShopContext context) 
+        private NotebookEF NotebookRepo;
+        private AccessoryEF AccessoryRepo;
+
+        public ShopController(ShopContext context, NotebookEF Notebooks, AccessoryEF accessories) 
         {
             DB = context;
-            var connectionString = DB.Database.GetDbConnection().ConnectionString;
+            AccessoryRepo = accessories;
+            NotebookRepo = Notebooks;
         }
         public async Task<IActionResult> Main()
         {

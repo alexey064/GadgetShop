@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository;
 
 namespace Diplom.Controllers
 {
@@ -14,11 +15,13 @@ namespace Diplom.Controllers
     {
         int itemPerPage = 15;
         private ShopContext DB;
-        public AccessoryController(ShopContext ctx) 
+        private AccessoryRepository Repo;
+        public AccessoryController(ShopContext ctx, AccessoryRepository repo) 
         {
             DB = ctx;
+            Repo = repo;
         }
-        public ActionResult List(int page=1)
+        public async Task<ActionResult> List(int page=1)
         {
             int Count = DB.Accessories.Count();
             int temp =(int) Count / itemPerPage;
@@ -27,11 +30,7 @@ namespace Diplom.Controllers
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = DB.Accessories.Include(o => o.product).ThenInclude(o=>o.Department)
-                .Include(o=>o.product).ThenInclude(o=>o.Type)
-                .Include(o=>o.product).ThenInclude(o=>o.Brand)
-                .Include(o=>o.product).ThenInclude(o=>o.Color)
-                .Skip((page-1) * itemPerPage).Take(itemPerPage);
+            var result = Repo.getList(0, 5);
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)
@@ -41,7 +40,7 @@ namespace Diplom.Controllers
             model.department = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
             model.types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o => o.Category == "Аксессуар").ToDictionaryAsync(o => o.Id, o => o.Name);
             model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.EditItem = await DB.Accessories.Include(o => o.product).Where(o => o.Id == id).FirstOrDefaultAsync();
+            model.EditItem = Repo.Get(id);
             if (model.EditItem == null)
             {
                 model.EditItem = new Accessory();
@@ -56,35 +55,13 @@ namespace Diplom.Controllers
             {
                 accessory.product.Photo = base.LoadPhoto(UploadFile, accessory.product.Photo, nameof(Accessory));
             }
-            if (accessory.Id==0)
-            {
-                accessory.product.AddDate = DateTime.Now;
-                DB.Accessories.Add(accessory);
-            }
-            else 
-            {
-              var prev = DB.Accessories.Include(o=>o.product).Where(o => o.Id == accessory.Id).First();
-                prev.product.BrandId = accessory.product.BrandId;
-                prev.product.ColorId = accessory.product.ColorId;
-                prev.product.DepartmentId = accessory.product.DepartmentId;
-                prev.product.Description = accessory.product.Description;
-                prev.product.Discount = accessory.product.Discount;
-                prev.product.DiscountDate = accessory.product.DiscountDate;
-                prev.product.Name = accessory.product.Name;
-                prev.product.Photo = accessory.product.Photo;
-                prev.product.Price = accessory.product.Price;
-                prev.product.TypeId = accessory.product.TypeId;
-            }
-            await DB.SaveChangesAsync();
+            Repo.Change(accessory);
             return RedirectToAction(nameof(List));
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            Accessory accessory = DB.Accessories.Where(o => o.Id == id).First();
-            DB.Products.Remove(accessory.product);
-            DB.Accessories.Remove(accessory);
-            await DB.SaveChangesAsync();
+            Repo.Delete(id);
             return RedirectToAction(nameof(List));
         }
     }
