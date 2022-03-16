@@ -46,6 +46,11 @@ namespace Web.Repository
             }
         }
 
+        public async Task<int> GetCount()
+        {
+            return await DB.WirelessHeadphones.CountAsync();
+        }
+
         public async Task<WirelessHeadphone> GetFull(int id)
         {
             return await DB.WirelessHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)

@@ -46,6 +46,11 @@ namespace Web.Repository
             }
         }
 
+        public async Task<int> GetCount()
+        {
+            return await DB.Notebooks.CountAsync();
+        }
+
         public async Task<Notebook> GetFull(int id)
         {
             return await DB.Notebooks.Include(o => o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product)

@@ -7,6 +7,7 @@ namespace Web.Repository
 {
     public interface IRepository<T>
     {
+        Task<int> GetCount();
         Task<T> GetShort(int id);
         Task<T> GetFull(int id);
         Task<IEnumerable<T>> GetListShort(int skip, int count);

@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Web.DBDataSource;
 
 namespace Web.Repository
 {
     public class AccessoryRepository : IRepository<Accessory>
     {
         ShopContext DB;
-        AccessoryRepository(ShopContext context) 
+        public AccessoryRepository(ShopContext context) 
         {
             DB = context;
         }
@@ -101,6 +100,11 @@ namespace Web.Repository
             {
                 return false;
             }
+        }
+
+        public async Task<int> GetCount()
+        {
+            return await DB.Accessories.CountAsync();
         }
     }
 }

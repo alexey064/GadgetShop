@@ -46,6 +46,11 @@ namespace Web.Repository
             }
         }
 
+        public async Task<int> GetCount()
+        {
+            return await DB.Smartphones.CountAsync();
+        }
+
         public async Task<Smartphone> GetFull(int id)
         {
             return await DB.Smartphones.Include(o => o.OS).Include(o => o.ScreenType).Include(o => o.Processor).Include(o => o.product).ThenInclude(o => o.Brand)
