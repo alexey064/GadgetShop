@@ -1,23 +1,24 @@
 ﻿using Diplom.Models.EF;
+using Diplom.Models.Model.simple;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Diplom.Models.Model.simple;
-using Microsoft.EntityFrameworkCore;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class TypeRepository : IRepository<Diplom.Models.Model.simple.Type>
+    public class MovementTypeRepository : ISimpleRepo<MovementType>
     {
         private ShopContext DB;
-        public TypeRepository(ShopContext context)
+        public MovementTypeRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(Diplom.Models.Model.simple.Type type)
+        public async Task<bool> Add(MovementType type)
         {
-            DB.Types.Add(type);
+            DB.MovementTypes.Add(type);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                Diplom.Models.Model.simple.Type type = DB.Types.Find(id);
-                DB.Types.Remove(type);
+                MovementType type = DB.MovementTypes.Find(id);
+                DB.MovementTypes.Remove(type);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,30 +47,20 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.Types.CountAsync();
+            return await DB.MovementTypes.CountAsync();
         }
 
-        public async Task<Diplom.Models.Model.simple.Type> GetFull(int id)
+        public async Task<MovementType> Get(int id)
         {
-            return await DB.Types.FirstOrDefaultAsync();
+            return await DB.MovementTypes.FirstAsync(o => o.Id == id);
         }
 
-        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<MovementType>> GetAll()
         {
-            return await DB.Types.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.MovementTypes.ToListAsync();
         }
 
-        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetListShort(int skip, int count)
-        {
-            return await DB.Types.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<Diplom.Models.Model.simple.Type> GetShort(int id)
-        {
-            return await DB.Types.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(Diplom.Models.Model.simple.Type type)
+        public async Task<bool> Update(MovementType type)
         {
             if (type.Id == 0)
             {
@@ -84,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    Diplom.Models.Model.simple.Type newtype = await DB.Types.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    MovementType newtype = await DB.MovementTypes.FirstOrDefaultAsync(o => o.Id == type.Id);
                     newtype.Name = type.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<MovementType>> GetByParam(string param)
+        {
+            return await DB.MovementTypes.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

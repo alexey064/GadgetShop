@@ -5,19 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class ChargingTypeRepository : IRepository<ChargingType>
+    public class ProcessorRepository : ISimpleRepo<Processor>
     {
         private ShopContext DB;
-        public ChargingTypeRepository(ShopContext context)
+        public ProcessorRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(ChargingType type)
+        public async Task<bool> Add(Processor processor)
         {
-            DB.ChargingTypes.Add(type);
+            DB.Processors.Add(processor);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                ChargingType type = DB.ChargingTypes.Find(id);
-                DB.ChargingTypes.Remove(type);
+                Processor processor = DB.Processors.Find(id);
+                DB.Processors.Remove(processor);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,34 +47,24 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.ChargingTypes.CountAsync();
+            return await DB.Processors.CountAsync();
         }
 
-        public async Task<ChargingType> GetFull(int id)
+        public async Task<Processor> Get(int id)
         {
-            return await DB.ChargingTypes.FirstOrDefaultAsync();
+            return await DB.Processors.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
-        public async Task<IEnumerable<ChargingType>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<Processor>> GetAll()
         {
-            return await DB.ChargingTypes.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.Processors.ToListAsync();
         }
 
-        public async Task<IEnumerable<ChargingType>> GetListShort(int skip, int count)
+        public async Task<bool> Update(Processor processor)
         {
-            return await DB.ChargingTypes.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<ChargingType> GetShort(int id)
-        {
-            return await DB.ChargingTypes.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(ChargingType type)
-        {
-            if (type.Id == 0)
+            if (processor.Id == 0)
             {
-                bool result = Add(type).Result;
+                bool result = Add(processor).Result;
                 if (result)
                 {
                     return true;
@@ -84,8 +75,8 @@ namespace Web.Repository
             {
                 try
                 {
-                    Brand newtype = await DB.Brands.FirstOrDefaultAsync(o => o.Id == type.Id);
-                    newtype.Name = type.Name;
+                    Processor newProcessor = await DB.Processors.FirstOrDefaultAsync(o => o.Id == processor.Id);
+                    newProcessor.Name = processor.Name;
                     await DB.SaveChangesAsync();
                     return true;
                 }
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<Processor>> GetByParam(string param)
+        {
+            return await DB.Processors.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

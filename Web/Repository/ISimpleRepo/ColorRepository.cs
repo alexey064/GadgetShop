@@ -5,19 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class DepartmentRepository : IRepository<Department>
+    public class ColorRepository : ISimpleRepo<Color>
     {
         private ShopContext DB;
-        public DepartmentRepository(ShopContext context)
+        public ColorRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(Department department)
+        public async Task<bool> Add(Color color)
         {
-            DB.Departments.Add(department);
+            DB.Colors.Add(color);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                Department department = DB.Departments.Find(id);
-                DB.Departments.Remove(department);
+                Color color = DB.Colors.Find(id);
+                DB.Colors.Remove(color);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,34 +47,24 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.Departments.CountAsync();
+            return await DB.Colors.CountAsync();
         }
 
-        public async Task<Department> GetFull(int id)
+        public async Task<Color> Get(int id)
         {
-            return await DB.Departments.FirstOrDefaultAsync();
+            return await DB.Colors.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
-        public async Task<IEnumerable<Department>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<Color>> GetAll()
         {
-            return await DB.Departments.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.Colors.ToListAsync();
         }
 
-        public async Task<IEnumerable<Department>> GetListShort(int skip, int count)
+        public async Task<bool> Update(Color color)
         {
-            return await DB.Departments.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<Department> GetShort(int id)
-        {
-            return await DB.Departments.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(Department department)
-        {
-            if (department.DepartmentId == 0)
+            if (color.Id == 0)
             {
-                bool result = Add(department).Result;
+                bool result = Add(color).Result;
                 if (result)
                 {
                     return true;
@@ -84,8 +75,8 @@ namespace Web.Repository
             {
                 try
                 {
-                    Department newdepartment = await DB.Departments.FirstOrDefaultAsync(o => o.DepartmentId == department.DepartmentId);
-                    newdepartment.Adress = department.Adress;
+                    Brand newcolor = await DB.Brands.FirstOrDefaultAsync(o => o.Id == color.Id);
+                    newcolor.Name = color.Name;
                     await DB.SaveChangesAsync();
                     return true;
                 }
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<Color>> GetByParam(string param)
+        {
+            return await DB.Colors.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

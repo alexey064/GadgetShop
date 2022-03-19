@@ -5,19 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class ProcessorRepository : IRepository<Processor>
+    public class VideocardRepository : ISimpleRepo<Videocard>
     {
         private ShopContext DB;
-        public ProcessorRepository(ShopContext context)
+        public VideocardRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(Processor processor)
+        public async Task<bool> Add(Videocard videocard)
         {
-            DB.Processors.Add(processor);
+            DB.Videocards.Add(videocard);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                Processor processor = DB.Processors.Find(id);
-                DB.Processors.Remove(processor);
+                Videocard videocard = DB.Videocards.Find(id);
+                DB.Videocards.Remove(videocard);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,34 +47,24 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.Processors.CountAsync();
+            return await DB.Videocards.CountAsync();
         }
 
-        public async Task<Processor> GetFull(int id)
+        public async Task<Videocard> Get(int id)
         {
-            return await DB.Processors.FirstOrDefaultAsync();
+            return await DB.Videocards.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
-        public async Task<IEnumerable<Processor>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<Videocard>> GetAll()
         {
-            return await DB.Processors.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.Videocards.ToArrayAsync();
         }
 
-        public async Task<IEnumerable<Processor>> GetListShort(int skip, int count)
+        public async Task<bool> Update(Videocard videocard)
         {
-            return await DB.Processors.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<Processor> GetShort(int id)
-        {
-            return await DB.Processors.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(Processor processor)
-        {
-            if (processor.Id == 0)
+            if (videocard.Id == 0)
             {
-                bool result = Add(processor).Result;
+                bool result = Add(videocard).Result;
                 if (result)
                 {
                     return true;
@@ -84,8 +75,8 @@ namespace Web.Repository
             {
                 try
                 {
-                    Processor newProcessor = await DB.Processors.FirstOrDefaultAsync(o => o.Id == processor.Id);
-                    newProcessor.Name = processor.Name;
+                    Videocard newVideocard = await DB.Videocards.FirstOrDefaultAsync(o => o.Id == videocard.Id);
+                    newVideocard.Name = videocard.Name;
                     await DB.SaveChangesAsync();
                     return true;
                 }
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<Videocard>> GetByParam(string param)
+        {
+            return await DB.Videocards.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

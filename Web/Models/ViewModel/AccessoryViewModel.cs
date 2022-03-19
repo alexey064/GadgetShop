@@ -1,14 +1,15 @@
 ﻿using Diplom.Models.Interfaces;
 using Diplom.Models.Model;
+using Diplom.Models.Model.simple;
 using System.Collections.Generic;
 namespace Diplom.Models.ViewModel
 {
-    public class AccessoryViewModel :ICreateViewModel
+    public class AccessoryViewModel
     {
         public Accessory EditItem;
-        public Dictionary<int, string> Brands;
-        public Dictionary<int, string> department;
-        public Dictionary<int, string> types;
-        public Dictionary<int, string> Colors;
+        public List<Brand> Brands;
+        public List<Department> department;
+        public List<Type> types;
+        public List<Color> Colors;
     }
 }
