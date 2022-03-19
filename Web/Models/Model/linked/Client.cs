@@ -20,7 +20,5 @@ namespace Diplom.Models.Model
 
         public virtual Department Department { get; set; }
         public virtual simple.Type Post { get; set; }
-
-        //public virtual ICollection<PurchaseHistory> PurchaseHistoryClients { get; set; }
     }
 }
