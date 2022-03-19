@@ -18,6 +18,8 @@ namespace Diplom.Models.Model
         public int? SellerId { get; set; }
         public int StatusId { get; set; }
         public int DepartmentId { get; set; }
+        public string Adress { get; set; }
+        public bool IsPurchaseAgree { get; set; }
         [Required]
         public int TotalCost { get; set; }
         [ForeignKey("ClientId")]

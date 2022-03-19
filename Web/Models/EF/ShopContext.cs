@@ -8,13 +8,12 @@ namespace Diplom.Models.EF
 {
     public class ShopContext : DbContext
     {
-        public ShopContext()
-        {
-        }
         public ShopContext(DbContextOptions<ShopContext> options)
             : base(options)
         {
+
         }
+        public ShopContext() { }
         public virtual DbSet<ChargingType> ChargingTypes { get; set; }
         public virtual DbSet<OS> OS { get; set; }
         public virtual DbSet<Accessory> Accessories { get; set; }
