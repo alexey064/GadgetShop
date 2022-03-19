@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Web.Repository
 {
-    public class WireHeadRepository : IRepository<WireHeadphone>
+    public class WireHeadRepository : ILinkedRepo<WireHeadphone>
     {
         ShopContext DB;
         public WireHeadRepository(ShopContext context) 

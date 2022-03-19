@@ -1,52 +1,71 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
+using Diplom.Models.Model.simple;
 using Diplom.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository;
+using Web.Repository.ISimpleRepo;
 
 namespace Diplom.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class NotebookController : Controller
+    public class NotebookController : CommonCRUDController
     {
         int itemPerPage = 15;
-        private ShopContext DB;
-        private NotebookRepository Repo;
-        public NotebookController(ShopContext ctx, NotebookRepository repo)
+        private ILinkedRepo<Notebook> NotebookRepo;
+        private ISimpleRepo<Brand> BrandRepo;
+        private ISimpleRepo<Department> DepRepo;
+        private ISimpleRepo<Type> TypeRepo;
+        private ISimpleRepo<Processor> ProcRepo;
+        private ISimpleRepo<ScreenType> ScreenRepo;
+        private ISimpleRepo<OS> OSRepo;
+        private ISimpleRepo<Color> ColorRepo;
+        private ISimpleRepo<Videocard> CardRepo;
+        public NotebookController(ILinkedRepo<Notebook> NotebookRepository, ISimpleRepo<Brand> BrandRepository, ISimpleRepo<Department> DepRepository,
+            ISimpleRepo<Type> TypeRepository, ISimpleRepo<Processor> ProcRepository, ISimpleRepo<ScreenType> ScreenRepository,
+            ISimpleRepo<OS> OSRepository, ISimpleRepo<Color> ColorRepository, ISimpleRepo<Videocard> CardRepository)
         {
-            DB = ctx;
-            Repo = repo;
+            NotebookRepo = NotebookRepository;
+            BrandRepo = BrandRepository;
+            DepRepo = DepRepository;
+            TypeRepo = TypeRepository;
+            ProcRepo = ProcRepository;
+            ScreenRepo = ScreenRepository;
+            OSRepo = OSRepository;
+            ColorRepo = ColorRepository;
+            CardRepo = CardRepository;
         }
         public async Task<ActionResult> List(int page = 1)
         {
-            int Count = DB.Notebooks.Count();
+            int Count = await NotebookRepo.GetCount();
             int temp = (int)Count / itemPerPage;
             if (temp * itemPerPage == Count)
             {
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = Repo.GetList((page - 1) * itemPerPage, itemPerPage);
+            var result = await NotebookRepo.GetListFull((page - 1) * itemPerPage, itemPerPage);
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)
         {
             NotebookViewModel model = new NotebookViewModel();
-            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
-            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "Ноутбук").ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.Processors = await DB.Processors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.ScreenTypes = await DB.ScreenTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.OS = await DB.OS.Select(o => new { o.id, o.Name }).ToDictionaryAsync(o => o.id, o => o.Name);
-            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.Videocards = await DB.Videocards.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.EditItem = Repo.Get(id);
+            model.Brands = await BrandRepo.GetAll() as List<Brand>;
+            model.Departments = await DepRepo.GetAll() as List<Department>;
+            model.Types = await TypeRepo.GetAll() as List<Type>;
+            model.Processors = await ProcRepo.GetAll() as List<Processor>;
+            model.ScreenTypes = await ScreenRepo.GetAll() as List<ScreenType>;
+            model.OS = await OSRepo.GetAll() as List<OS>;
+            model.Colors = await ColorRepo.GetAll() as List<Color>;
+            model.Videocards = await CardRepo.GetAll() as List<Videocard>;
+            model.EditItem = await NotebookRepo.GetFull(id);
             if (model.EditItem == null)
             {
                 model.EditItem = new Notebook();
@@ -58,53 +77,16 @@ namespace Diplom.Controllers
         {
             if (UploadFile != null)
             {
-                notebook.product.Photo = LoadPhoto(UploadFile, notebook.product.Photo);
+                notebook.product.Photo = base.LoadPhoto(UploadFile, notebook.product.Photo, "Notebook");
             }
-            Repo.Change(notebook);
+            await NotebookRepo.Update(notebook);
             return RedirectToAction(nameof(List));
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            Repo.Delete(id);
+            await NotebookRepo.Delete(id);
             return RedirectToAction(nameof(List));
-        }
-        public string LoadPhoto(IFormFile file, string filePath) 
-        {
-            if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                {
-                    file.CopyTo(fs);
-                }
-                return filePath;
-            }
-            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/wwwroot/Files/Notebook/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/wwwroot/Files/Notebook/");
-            }
-            DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory() + "/wwwroot/Files/Notebook/");
-            int MaxNumb = 0;
-            foreach (FileInfo FileName in dir.GetFiles())
-            {
-                string name = FileName.Name.Split('_')[1];
-                name = name.Split('.')[0];
-                int numb;
-                int.TryParse(name, out numb);
-                if (numb != 0)
-                {
-                    if (numb > MaxNumb)
-                    {
-                        MaxNumb = numb;
-                    }
-                }
-            }
-            using (FileStream fs = new FileStream(Directory.GetCurrentDirectory() + "/wwwroot/Files/Notebook/notebook_" + (MaxNumb + 1) +
-                ".png", FileMode.Create))
-            {
-                file.CopyTo(fs);
-            }
-            return "/Files/Notebook/notebook_" + (MaxNumb + 1) + ".png";
         }
     }
 }

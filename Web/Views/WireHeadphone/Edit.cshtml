@@ -37,15 +37,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.ConnectionType" class="control-label">ConnectionType</label>
                     <select name="ConnectionTypeId" asp-for="EditItem.ConnectionType" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.ConnectionType)
+                        @foreach (ChargingType item in Model.ConnectionType)
                         {
-                            if (Model.EditItem.ConnectionTypeId == item.Key)
+                            if (Model.EditItem.ConnectionTypeId == item.Id)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.Id">@item.Name</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.Id">@item.Name</option>
                             }
                         }
                     </select>
@@ -53,15 +53,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.Product.BrandId" class="control-label">Brand</label>
                     <select name="Product.BrandId" asp-for="EditItem.Product.BrandId" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.Brands)
+                        @foreach (Brand item in Model.Brands)
                         {
-                            if (Model.EditItem.Product.BrandId == item.Key)
+                            if (Model.EditItem.Product.BrandId == item.Id)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.Id">@item.Name</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.Id">@item.Name</option>
                             }
                         }
                     </select>
@@ -69,15 +69,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.Product.DepartmentId" class="control-label">Department</label>
                     <select name="Product.DepartmentId" asp-for="EditItem.Product.DepartmentId" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.Departments)
+                        @foreach (Department item in Model.Departments)
                         {
-                            if (Model.EditItem.Product.DepartmentId == item.Key)
+                            if (Model.EditItem.Product.DepartmentId == item.DepartmentId)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.DepartmentId">@item.Adress</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.DepartmentId">@item.Adress</option>
                             }
                         }
                     </select>
@@ -101,15 +101,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.Product.Color" class="control-label">Color</label>
                     <select name="Product.ColorId" asp-for="EditItem.Product.Color" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.Colors)
+                        @foreach (Color item in Model.Colors)
                         {
-                            if (Model.EditItem.Product.ColorId == item.Key)
+                            if (Model.EditItem.Product.ColorId == item.Id)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.Id">@item.Name</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.Id">@item.Name</option>
                             }
                         }
                     </select>

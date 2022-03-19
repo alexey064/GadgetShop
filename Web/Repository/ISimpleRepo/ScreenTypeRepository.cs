@@ -5,19 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class ColorRepository : IRepository<Color>
+    public class ScreenTypeRepository : ISimpleRepo<ScreenType>
     {
         private ShopContext DB;
-        public ColorRepository(ShopContext context)
+        public ScreenTypeRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(Color color)
+        public async Task<bool> Add(ScreenType type)
         {
-            DB.Colors.Add(color);
+            DB.ScreenTypes.Add(type);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                Color color = DB.Colors.Find(id);
-                DB.Colors.Remove(color);
+                ScreenType type = DB.ScreenTypes.Find(id);
+                DB.ScreenTypes.Remove(type);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,34 +47,24 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.Colors.CountAsync();
+            return await DB.ScreenTypes.CountAsync();
         }
 
-        public async Task<Color> GetFull(int id)
+        public async Task<ScreenType> Get(int id)
         {
-            return await DB.Colors.FirstOrDefaultAsync();
+            return await DB.ScreenTypes.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
-        public async Task<IEnumerable<Color>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<ScreenType>> GetAll()
         {
-            return await DB.Colors.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.ScreenTypes.ToListAsync();
         }
 
-        public async Task<IEnumerable<Color>> GetListShort(int skip, int count)
+        public async Task<bool> Update(ScreenType type)
         {
-            return await DB.Colors.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<Color> GetShort(int id)
-        {
-            return await DB.Colors.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(Color color)
-        {
-            if (color.Id == 0)
+            if (type.Id == 0)
             {
-                bool result = Add(color).Result;
+                bool result = Add(type).Result;
                 if (result)
                 {
                     return true;
@@ -84,8 +75,8 @@ namespace Web.Repository
             {
                 try
                 {
-                    Brand newcolor = await DB.Brands.FirstOrDefaultAsync(o => o.Id == color.Id);
-                    newcolor.Name = color.Name;
+                    ScreenType newtype = await DB.ScreenTypes.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    newtype.Name = type.Name;
                     await DB.SaveChangesAsync();
                     return true;
                 }
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<ScreenType>> GetByParam(string param)
+        {
+            return await DB.ScreenTypes.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

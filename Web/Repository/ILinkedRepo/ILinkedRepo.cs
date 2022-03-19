@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Web.Repository
 {
-    public interface IRepository<T>
+    public interface ILinkedRepo<T>
     {
         Task<int> GetCount();
         Task<T> GetShort(int id);

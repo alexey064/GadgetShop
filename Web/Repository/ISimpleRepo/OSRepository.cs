@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class OSRepository :IRepository<OS>
+    public class OSRepository :ISimpleRepo<OS>
     {
         private ShopContext DB;
         public OSRepository(ShopContext context)
@@ -49,24 +50,14 @@ namespace Web.Repository
             return await DB.OS.CountAsync();
         }
 
-        public async Task<OS> GetFull(int id)
+        public async Task<OS> Get(int id)
         {
-            return await DB.OS.FirstOrDefaultAsync();
+            return await DB.OS.FirstOrDefaultAsync(o => o.id == id);
         }
 
-        public async Task<IEnumerable<OS>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<OS>> GetAll()
         {
-            return await DB.OS.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<IEnumerable<OS>> GetListShort(int skip, int count)
-        {
-            return await DB.OS.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<OS> GetShort(int id)
-        {
-            return await DB.OS.FirstOrDefaultAsync();
+            return await DB.OS.ToListAsync();
         }
 
         public async Task<bool> Update(OS os)
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<OS>> GetByParam(string param)
+        {
+            return await DB.OS.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

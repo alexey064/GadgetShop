@@ -5,19 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class ScreenTypeRepository : IRepository<ScreenType>
+    public class ChargingTypeRepository : ISimpleRepo<ChargingType>
     {
         private ShopContext DB;
-        public ScreenTypeRepository(ShopContext context)
+        public ChargingTypeRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<bool> Add(ScreenType type)
+        public async Task<bool> Add(ChargingType type)
         {
-            DB.ScreenTypes.Add(type);
+            DB.ChargingTypes.Add(type);
             try
             {
                 await DB.SaveChangesAsync();
@@ -33,8 +34,8 @@ namespace Web.Repository
         {
             try
             {
-                ScreenType type = DB.ScreenTypes.Find(id);
-                DB.ScreenTypes.Remove(type);
+                ChargingType type = DB.ChargingTypes.Find(id);
+                DB.ChargingTypes.Remove(type);
                 await DB.SaveChangesAsync();
                 return true;
             }
@@ -46,30 +47,20 @@ namespace Web.Repository
 
         public async Task<int> GetCount()
         {
-            return await DB.ScreenTypes.CountAsync();
+            return await DB.ChargingTypes.CountAsync();
         }
 
-        public async Task<ScreenType> GetFull(int id)
+        public async Task<ChargingType> Get(int id)
         {
-            return await DB.ScreenTypes.FirstOrDefaultAsync();
+            return await DB.ChargingTypes.FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<ScreenType>> GetListFull(int skip, int count)
+        public async Task<IEnumerable<ChargingType>> GetAll()
         {
-            return await DB.ScreenTypes.Skip(skip).Take(count).ToArrayAsync();
+            return await DB.ChargingTypes.ToListAsync();
         }
 
-        public async Task<IEnumerable<ScreenType>> GetListShort(int skip, int count)
-        {
-            return await DB.ScreenTypes.Skip(skip).Take(count).ToArrayAsync();
-        }
-
-        public async Task<ScreenType> GetShort(int id)
-        {
-            return await DB.ScreenTypes.FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Update(ScreenType type)
+        public async Task<bool> Update(ChargingType type)
         {
             if (type.Id == 0)
             {
@@ -84,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    ScreenType newtype = await DB.ScreenTypes.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    Brand newtype = await DB.Brands.FirstOrDefaultAsync(o => o.Id == type.Id);
                     newtype.Name = type.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -94,6 +85,11 @@ namespace Web.Repository
                     return false;
                 }
             }
+        }
+
+        public async Task<IEnumerable<ChargingType>> GetByParam(string param)
+        {
+            return await DB.ChargingTypes.Where(o => o.Name == param).ToListAsync();
         }
     }
 }

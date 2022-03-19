@@ -1,50 +1,63 @@
 ﻿using Diplom.Models.EF;
 using Diplom.Models.Model;
+using Diplom.Models.Model.simple;
 using Diplom.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository;
+using Web.Repository.ISimpleRepo;
 
 namespace Diplom.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class WirelessHeadphoneController : Controller
+    public class WirelessHeadphoneController : CommonCRUDController
     {
         int itemPerPage = 15;
-        private ShopContext DB;
-        public WirelessHeadphoneController(ShopContext ctx)
+        private ILinkedRepo<WirelessHeadphone> WirelessRepo;
+        private ISimpleRepo<Brand> BrandRepo;
+        private ISimpleRepo<Department> DepRepo;
+        private ISimpleRepo<Color> ColorRepo;
+        private ISimpleRepo<ChargingType> ChargRepo;
+        private TypeRepository TypeRepo;
+        public WirelessHeadphoneController(ILinkedRepo<WirelessHeadphone> wirelessRepository,ISimpleRepo<Brand> BrandRepository,
+            ISimpleRepo<Department> DepRepository, ISimpleRepo<Color> ColorRepository, ISimpleRepo<ChargingType> ChargRepository,
+            ISimpleRepo<Models.Model.simple.Type> TypeRepository)
         {
-            DB = ctx;
+            WirelessRepo = wirelessRepository;
+            BrandRepo = BrandRepository;
+            DepRepo = DepRepository;
+            ColorRepo = ColorRepository;
+            ChargRepo = ChargRepository;
+            TypeRepo = (TypeRepository)TypeRepository;
         }
-        public async Task<ActionResult> List(int page = 0)
+        public async Task<ActionResult> List(int page = 1)
         {
-            int Count = DB.WirelessHeadphones.Count();
+            int Count = await WirelessRepo.GetCount();
             int temp = (int)Count / itemPerPage;
             if (temp * itemPerPage == Count)
             {
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = await DB.WirelessHeadphones.Include(o => o.Product).ThenInclude(o => o.Brand).Include(o => o.Product).ThenInclude(o => o.Department)
-                .Include(o => o.Product).ThenInclude(o => o.Type).Include(o=>o.Product).ThenInclude(o=>o.Color)
-                .Include(o=>o.ChargingType)
-                .Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
+            var result = await WirelessRepo.GetListFull((page - 1) * itemPerPage, itemPerPage);
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)
         {
             WirelessHeadViewModel model = new WirelessHeadViewModel();
-            model.Brands = await DB.Brands.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
-            model.Types = await DB.Types.Select(o => new { o.Id, o.Name, o.Category }).Where(o=>o.Category== "БеспрНаушники").ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.Colors = await DB.Colors.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.ConnectionType = await DB.ChargingTypes.Select(o => new { o.Id, o.Name }).ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.EditItem = await DB.WirelessHeadphones.Include(o => o.Product).Where(o => o.Id == id).FirstOrDefaultAsync();
+            model.Brands = await BrandRepo.GetAll() as List<Brand>;
+            model.Departments = await DepRepo.GetAll() as List<Department>;
+            model.Types = await TypeRepo.GetByParam("БеспрНаушники") as List<Models.Model.simple.Type>;
+            model.Colors = await ColorRepo.GetAll() as List<Color>;
+            model.ConnectionType = await ChargRepo.GetAll() as List<ChargingType>;
+            model.EditItem = await WirelessRepo.GetShort(id);
             if (model.EditItem == null)
             {
                 model.EditItem = new WirelessHeadphone();
@@ -56,79 +69,22 @@ namespace Diplom.Controllers
         {
             if (UploadFile!=null)
             {
-                wireless.Product.Photo = LoadPhoto(UploadFile, wireless.Product.Photo);
+                wireless.Product.Photo = base.LoadPhoto(UploadFile, wireless.Product.Photo, "WirelessHeadphones");
             }
-            if (wireless.Id == 0)
+            if (await WirelessRepo.Update(wireless))
             {
-                wireless.Product.AddDate = DateTime.Now;
-                DB.WirelessHeadphones.Add(wireless);
-            }
-            else
-            {
-                var prev = DB.WirelessHeadphones.Include(o => o.Product).Where(o => o.Id == wireless.Id).First();
-                prev.Battery = wireless.Battery;
-                prev.BluetoothVersion = wireless.BluetoothVersion;
-                prev.CaseBattery = wireless.CaseBattery;
-                prev.Radius = wireless.Radius;
-                prev.ChargingTypeId = wireless.ChargingTypeId;
-                prev.Product.BrandId = wireless.Product.BrandId;
-                prev.Product.DepartmentId = wireless.Product.DepartmentId;
-                prev.Product.Description = wireless.Product.Description;
-                prev.Product.Discount = wireless.Product.Discount;
-                prev.Product.DiscountDate = wireless.Product.DiscountDate;
-                prev.Product.Name = wireless.Product.Name;
-                prev.Product.Photo = wireless.Product.Photo;
-                prev.Product.Price = wireless.Product.Price;
-                prev.Product.TypeId = wireless.Product.TypeId;
-                DB.SaveChanges();
-            }
-            await DB.SaveChangesAsync();
+                //TODO
+            } 
             return RedirectToAction(nameof(List));
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            WirelessHeadphone wireless = DB.WirelessHeadphones.Where(o => o.Id == id).First();
-            DB.Products.Remove(wireless.Product);
-            DB.WirelessHeadphones.Remove(wireless);
-            await DB.SaveChangesAsync();
+            if (await WirelessRepo.Delete(id))
+            {
+                //TODO
+            }
             return RedirectToAction(nameof(List));
-        }
-        public string LoadPhoto(IFormFile file, string filePath)
-        {
-            if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
-            {
-                using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                {
-                    file.CopyTo(fs);
-                }
-                return filePath;
-            }
-            if (!Directory.Exists(Directory.GetCurrentDirectory() + "/wwwroot/Files/WirelessHeadphones/"))
-            {
-                Directory.CreateDirectory(Directory.GetCurrentDirectory() + "/wwwroot/Files/WirelessHeadphones/");
-            }
-            DirectoryInfo dir = new DirectoryInfo(Directory.GetCurrentDirectory() + "/wwwroot/Files/WirelessHeadphones/");
-            int MaxNumb = 0;
-            foreach (FileInfo FileName in dir.GetFiles())
-            {
-                string name = FileName.Name.Split('_')[1];
-                name = name.Split('.')[0];
-                int numb;
-                int.TryParse(name, out numb);
-                if (numb != 0)
-                {
-                    if (numb > MaxNumb)
-                    {
-                        MaxNumb = numb;
-                    }
-                }
-            }
-            using (FileStream fs = new FileStream(Directory.GetCurrentDirectory() + "/wwwroot/Files/WirelessHeadphones/WirelessHead_" + (MaxNumb + 1) + ".png", FileMode.Create))
-            {
-                file.CopyTo(fs);
-            }
-            return "/Files/WirelessHeadphones/WirelessHead_" + (MaxNumb + 1) + ".png";
         }
     }
 }

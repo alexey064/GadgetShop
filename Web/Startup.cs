@@ -12,6 +12,10 @@ using Web;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Web.Repository;
+using Microsoft.ServiceFabric.Services.Remoting;
+using Diplom.Models.Model;
+using Diplom.Models.Model.simple;
+using Web.Repository.ISimpleRepo;
 
 namespace Diplom
 {
@@ -32,7 +36,7 @@ namespace Diplom
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             NameClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
-                            
+
                             // указывает, будет ли валидироваться издатель при валидации токена
                             ValidateIssuer = true,
                             // строка, представляющая издателя
@@ -54,13 +58,30 @@ namespace Diplom
             services.AddDistributedMemoryCache();
             services.AddRazorPages();
 
+            services.AddTransient<ILinkedRepo<Accessory>, AccessoryRepository>();
+            services.AddTransient<ILinkedRepo<Notebook>, NotebookRepository>();
+            services.AddTransient<ILinkedRepo<Smartphone>, SmartphoneRepository>();
+            services.AddTransient<ILinkedRepo<WireHeadphone>, WireHeadRepository>();
+            services.AddTransient<ILinkedRepo<WirelessHeadphone>, WirelessHeadRepository>();
+
+            services.AddTransient<ISimpleRepo<Brand>, BrandRepository>();
+            services.AddTransient<ISimpleRepo<ChargingType>, ChargingTypeRepository>();
+            services.AddTransient<ISimpleRepo<Color>, ColorRepository>();
+            services.AddTransient<ISimpleRepo<Department>, DepartmentRepository>();
+            services.AddTransient<ISimpleRepo<MovementType>, MovementTypeRepository>();
+            services.AddTransient<ISimpleRepo<OS>, OSRepository>();
+            services.AddTransient<ISimpleRepo<Processor>, ProcessorRepository>();
+            services.AddTransient<ISimpleRepo<Provider>, ProviderRepository>();
+            services.AddTransient<ISimpleRepo<ScreenType>, ScreenTypeRepository>();
+            services.AddTransient<ISimpleRepo<Models.Model.simple.Type>, TypeRepository>();
+            services.AddTransient<ISimpleRepo<Videocard>, VideocardRepository>();
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(1000);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
-            services.AddTransient<AccessoryRepository>();
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
             services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=LAPTOP-09UR5JLB;Database=Shop;integrated security=true;"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();

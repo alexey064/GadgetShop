@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Web.Repository
 {
-    public class WirelessHeadRepository : IRepository<WirelessHeadphone>
+    public class WirelessHeadRepository : ILinkedRepo<WirelessHeadphone>
     {
         ShopContext DB;
         public WirelessHeadRepository(ShopContext context) 
