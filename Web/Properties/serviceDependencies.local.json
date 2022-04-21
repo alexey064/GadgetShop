@@ -4,16 +4,16 @@
       "type": "secrets.user"
     },
     "mssql2": {
+      "secretStore": "LocalSecretsFile",
       "resourceId": null,
       "type": "mssql.onprem",
-      "connectionId": "ConnectionStrings:ShopIdentity",
-      "secretStore": "LocalSecretsFile"
+      "connectionId": "ConnectionStrings:ShopIdentity"
     },
     "mssql1": {
+      "secretStore": "LocalSecretsFile",
       "resourceId": null,
       "type": "mssql.onprem",
-      "connectionId": "ConnectionStrings:Shop",
-      "secretStore": "LocalSecretsFile"
+      "connectionId": "ConnectionStrings:Shop"
     }
   }
 }

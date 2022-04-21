@@ -27,15 +27,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.Department" class="control-label">Department</label>
                     <select name="DepartmentId" class="form-select" asp-for="EditItem.Department">
-                        @foreach (KeyValuePair<int, string> item in Model.Departments)
+                        @foreach (Department item in Model.Departments)
                         {
-                            if (Model.EditItem.DepartmentId == item.Key)
+                            if (Model.EditItem.DepartmentId == item.DepartmentId)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.DepartmentId">@item.Adress</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.DepartmentId">@item.Adress</option>
                             }
                         }
                     </select>

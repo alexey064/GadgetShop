@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository;
 
 namespace Diplom.Controllers
 {
@@ -11,12 +12,12 @@ namespace Diplom.Controllers
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
-        private ShopContext DB;
-        public AccountController(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr, ShopContext context) 
+        private ILinkedRepo<Client> ClientRepo;
+        public AccountController(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr, ILinkedRepo<Client> ClientRepository) 
         {
             userManager = usrmgr;
             signInManager = signmgr;
-            DB = context;
+            ClientRepo = ClientRepository;
         }
         public IActionResult AccessDenied(string ReturnUrl) 
         {
@@ -38,10 +39,12 @@ namespace Diplom.Controllers
                     Client client = new Client();
                     client.NickName = user.UserName;
                     client.Email = user.Email;
-                    client.PostId = DB.Types.Where(o => o.Name == "Покупатель").FirstOrDefault().Id;
+                    client.PostId = 14;
                     client.DepartmentId = 1;
-                    DB.Clients.Add(client);
-                    DB.SaveChanges();
+                    if (await ClientRepo.Add(client))
+                    {
+
+                    }
                     await signInManager.SignInAsync(user, isPersistent: false);
                     return Redirect("/");
                 }

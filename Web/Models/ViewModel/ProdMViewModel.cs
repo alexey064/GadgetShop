@@ -5,6 +5,6 @@ namespace Diplom.Models.ViewModel
     public class ProdMViewModel
     {
         public Provider EditItem;
-        public Dictionary<int, string> product;
+        public List<Product> product;
     }
 }

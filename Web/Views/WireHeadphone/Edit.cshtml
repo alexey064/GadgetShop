@@ -85,15 +85,15 @@
                 <div class="form-group">
                     <label asp-for="EditItem.Product.Type" class="control-label">Type</label>
                     <select name="Product.TypeId" asp-for="EditItem.Product.Type" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.Types)
+                        @foreach (Diplom.Models.Model.simple.Type item in Model.Types)
                         {
-                            if (Model.EditItem.Product.TypeId == item.Key)
+                            if (Model.EditItem.Product.TypeId == item.Id)
                             {
-                                <option selected value="@item.Key">@item.Value</option>
+                                <option selected value="@item.Id">@item.Name</option>
                             }
                             else
                             {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.Id">@item.Name</option>
                             }
                         }
                     </select>

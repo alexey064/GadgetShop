@@ -21,9 +21,9 @@
                 <div class="form-group">
                     <label class="control-label">Product name</label>
                     <select name="ProductId" class="form-select">
-                        @foreach (KeyValuePair<int, string> item in Model.product)
+                        @foreach (Product item in Model.product)
                         {
-                                <option value="@item.Key">@item.Value</option>
+                                <option value="@item.ProductId">@item.Name</option>
                         }
                     </select>
                 </div>

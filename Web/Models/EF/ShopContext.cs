@@ -11,9 +11,9 @@ namespace Diplom.Models.EF
         public ShopContext(DbContextOptions<ShopContext> options)
             : base(options)
         {
-
+            
         }
-        public ShopContext() { }
+        public ShopContext() { Database.EnsureCreated(); }
         public virtual DbSet<ChargingType> ChargingTypes { get; set; }
         public virtual DbSet<OS> OS { get; set; }
         public virtual DbSet<Accessory> Accessories { get; set; }
