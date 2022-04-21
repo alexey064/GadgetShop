@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository;
+using Web.Repository.ISimpleRepo;
 
 namespace Diplom.Controllers
 {
@@ -17,29 +19,34 @@ namespace Diplom.Controllers
     public class ClientController : Controller
     {
         int itemPerPage = 15;
-        private ShopContext DB;
-        public ClientController(ShopContext ctx)
+        private ILinkedRepo<Client> ClientRepo;
+        private ISimpleRepo<Department> DepRepo;
+        private ISimpleRepo<Models.Model.simple.Type> TypeRepo;
+        public ClientController(ILinkedRepo<Client> clientRepository, ISimpleRepo<Department> depRepository,
+            ISimpleRepo<Models.Model.simple.Type> TypeRepository)
         {
-            DB = ctx;
+            ClientRepo = clientRepository;
+            DepRepo = depRepository;
+            TypeRepo = TypeRepository;
         }
-        public async Task<ActionResult> List(int page = 0)
+        public async Task<ActionResult> List(int page = 1)
         {
-            int Count = DB.Clients.Count();
+            int Count = await ClientRepo.GetCount();
             int temp =(int) Count / itemPerPage;
             if (temp * itemPerPage == Count)
             {
                 ViewBag.MaxPage = temp;
             }
             else ViewBag.MaxPage = temp + 1;
-            var result = await DB.Clients.Include(o => o.Department).Include(o => o.Post).Skip(page * itemPerPage).Take(itemPerPage).ToArrayAsync();
+            var result = await ClientRepo.GetListFull((page - 1) * itemPerPage, itemPerPage);
             return View(result);
         }
         public async Task<IActionResult> Edit(int id = 0)
         {
             ClientViewModel model = new ClientViewModel();
-            model.Departments = await DB.Departments.Select(o => new { o.DepartmentId, o.Adress }).ToDictionaryAsync(o => o.DepartmentId, o => o.Adress);
-            model.Posts = await DB.Types.Select(o => new { o.Id, o.Name, o.Category}).Where(o=>o.Category== "Должность").ToDictionaryAsync(o => o.Id, o => o.Name);
-            model.EditItem = await DB.Clients.Include(o=>o.Department).Include(o=>o.Post).Where(o => o.Id == id).FirstOrDefaultAsync();
+            model.Departments = await DepRepo.GetAll() as List<Department>;
+            model.Posts = await TypeRepo.GetByParam("Должность") as List<Models.Model.simple.Type>;
+            model.EditItem = await ClientRepo.GetShort(id);
             if (model.EditItem == null)
             {
                 model.EditItem = new Client();
@@ -50,27 +57,19 @@ namespace Diplom.Controllers
         }
         public async Task<IActionResult> Save(Client client)
         {
-            if (client.Id == 0)
+            if (await ClientRepo.Update(client)) 
             {
-                DB.Clients.Add(client);
+                //TODO
             }
-            else
-            {
-                var prev = await DB.Clients.Include(o => o.Department).Include(o=>o.Post).Where(o => o.Id ==client.Id).FirstAsync();
-                prev.FullName = client.FullName;
-                prev.Phone = client.Phone;
-                prev.DepartmentId = client.DepartmentId;
-                prev.PostId = client.PostId;
-            }
-            await DB.SaveChangesAsync();
             return RedirectToAction(nameof(List));
         }
 
         public async Task<ActionResult> Delete(int id)
         {
-            Client client = DB.Clients.Where(o => o.Id == id).First();
-            DB.Clients.Remove(client);
-            await DB.SaveChangesAsync();
+            if (await ClientRepo.Delete(id)) 
+            {
+                //TODO
+            }
             return RedirectToAction(nameof(List));
         }
     }

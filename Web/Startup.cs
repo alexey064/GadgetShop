@@ -6,16 +6,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Diplom.Models.EF;
 using Microsoft.AspNetCore.Identity;
 using System;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Web;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Web.Repository;
-using Microsoft.ServiceFabric.Services.Remoting;
 using Diplom.Models.Model;
 using Diplom.Models.Model.simple;
 using Web.Repository.ISimpleRepo;
+using Web.Repository.IProdMov;
 
 namespace Diplom
 {
@@ -71,7 +70,7 @@ namespace Diplom
             services.AddTransient<ISimpleRepo<MovementType>, MovementTypeRepository>();
             services.AddTransient<ISimpleRepo<OS>, OSRepository>();
             services.AddTransient<ISimpleRepo<Processor>, ProcessorRepository>();
-            services.AddTransient<ISimpleRepo<Provider>, ProviderRepository>();
+            services.AddTransient<IProdMov<Provider>, ProviderRepository>();
             services.AddTransient<ISimpleRepo<ScreenType>, ScreenTypeRepository>();
             services.AddTransient<ISimpleRepo<Models.Model.simple.Type>, TypeRepository>();
             services.AddTransient<ISimpleRepo<Videocard>, VideocardRepository>();
@@ -83,9 +82,9 @@ namespace Diplom
                 options.Cookie.IsEssential = true;
             });
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
-            services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=LAPTOP-09UR5JLB;Database=Shop;integrated security=true;"));
+            services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=DESKTOP-F3SVKM1;Database=Shop;integrated security=true;"));
             services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();
-            services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer("server=LAPTOP-09UR5JLB;Database=ShopIdentity;integrated security=true;"));
+            services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer("server=DESKTOP-F3SVKM1;Database=ShopIdentity;integrated security=true;"));
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

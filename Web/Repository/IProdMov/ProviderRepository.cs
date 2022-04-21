@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Repository.IProdMov;
 using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class ProviderRepository : ISimpleRepo<Provider>
+    public class ProviderRepository : IProdMov<Provider>
     {
         private ShopContext DB;
         public ProviderRepository(ShopContext context)
@@ -34,7 +35,13 @@ namespace Web.Repository
         {
             try
             {
-                Provider provider = DB.Providers.Find(id);
+                Provider provider = await DB.Providers.Include(o => o.ProdMovement).FirstAsync(o => o.Id == id);
+                foreach (ProdMovement item in provider.ProdMovement)
+                {
+                    Product prod = DB.Products.Where(o => o.ProductId == item.ProductId).First();
+                    prod.Count = prod.Count - item.Count;
+                }
+                DB.ProdMovements.RemoveRange(provider.ProdMovement);
                 DB.Providers.Remove(provider);
                 await DB.SaveChangesAsync();
                 return true;
@@ -91,6 +98,49 @@ namespace Web.Repository
         public async Task<IEnumerable<Provider>> GetByParam(string param)
         {
             return await DB.Providers.Where(o => o.DepartmentId == int.Parse(param)).ToListAsync();
+        }
+
+        public async Task<Provider> GetShort(int id)
+        {
+            return await DB.Providers.FindAsync(id);
+        }
+
+        public async Task<Provider> GetFull(int id)
+        {
+            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).FirstOrDefaultAsync(o => o.Id == id);
+        }
+
+        public async Task<IEnumerable<Provider>> GetListShort(int skip, int count)
+        {
+            return await DB.Providers.Skip(skip).Take(count).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Provider>> GetListFull(int skip, int count)
+        {
+            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).Skip(skip).Take(count).ToListAsync();
+        }
+
+        public async Task<bool> ProdMoveDelete(int MoveId)
+        {
+            ProdMovement prod = await DB.ProdMovements.Include(o => o.Provider).Where(o => o.Id == MoveId).FirstAsync();
+            Product product = await DB.Products.Where(o => o.ProductId == prod.ProductId).FirstAsync();
+            product.Count = product.Count - prod.Count;
+            int RedId = prod.Provider.Id;
+            DB.ProdMovements.Remove(prod);
+            try
+            {
+                await DB.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+
+        }
+        public Task<bool> ProdMoveAdd(Provider Container, int ProductId, int Count)
+        {
+            throw new NotImplementedException();
         }
     }
 }

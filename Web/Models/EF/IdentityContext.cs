@@ -10,6 +10,7 @@ namespace Diplom.Models.EF
         public IdentityContext(DbContextOptions options) : base(options)
         {
             _options = options;
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
