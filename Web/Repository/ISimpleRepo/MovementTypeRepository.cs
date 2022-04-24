@@ -91,5 +91,10 @@ namespace Web.Repository
         {
             return await DB.MovementTypes.Where(o => o.Name == param).ToListAsync();
         }
+
+        public async Task<IEnumerable<MovementType>> GetList(int skip, int count)
+        {
+            return await DB.MovementTypes.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

@@ -142,5 +142,10 @@ namespace Web.Repository
         {
             throw new NotImplementedException();
         }
+
+        public Task<PurchaseHistory> FindByUserName(string UserName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

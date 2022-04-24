@@ -91,5 +91,10 @@ namespace Web.Repository
         {
             return await DB.Departments.Where(o => o.Adress == param).ToListAsync();
         }
+
+        public async Task<IEnumerable<Department>> GetList(int skip, int count)
+        {
+            return await DB.Departments.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

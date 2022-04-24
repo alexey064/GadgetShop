@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Diplom.Models.Model;
+using System.Threading.Tasks;
 
 namespace Web.Repository.IProdMov
 {
@@ -6,5 +7,6 @@ namespace Web.Repository.IProdMov
     {
         Task<bool> ProdMoveDelete(int MoveId);
         Task<bool> ProdMoveAdd(T Container, int ProductId, int Count);
+        Task<PurchaseHistory> FindByUserName(string UserName);
     }
 }

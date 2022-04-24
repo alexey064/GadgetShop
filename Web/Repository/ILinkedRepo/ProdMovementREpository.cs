@@ -43,7 +43,6 @@ namespace Web.Repository.ILinkedRepo
                 return false;
             }
         }
-
         public async Task<int> GetCount()
         {
             return await DB.ProdMovements.CountAsync();

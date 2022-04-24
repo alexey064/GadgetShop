@@ -15,6 +15,7 @@ using Diplom.Models.Model;
 using Diplom.Models.Model.simple;
 using Web.Repository.ISimpleRepo;
 using Web.Repository.IProdMov;
+using Web.UseCase;
 
 namespace Diplom
 {
@@ -56,6 +57,7 @@ namespace Diplom
             services.AddControllersWithViews();
             services.AddDistributedMemoryCache();
             services.AddRazorPages();
+            services.AddHttpContextAccessor();
 
             services.AddTransient<ILinkedRepo<Accessory>, AccessoryRepository>();
             services.AddTransient<ILinkedRepo<Notebook>, NotebookRepository>();
@@ -63,7 +65,7 @@ namespace Diplom
             services.AddTransient<ILinkedRepo<WireHeadphone>, WireHeadRepository>();
             services.AddTransient<ILinkedRepo<WirelessHeadphone>, WirelessHeadRepository>();
 
-            services.AddTransient<ISimpleRepo<Brand>, BrandRepository>();
+            services.AddTransient<ISimpleRepo<ChargingType>, BrandRepository>();
             services.AddTransient<ISimpleRepo<ChargingType>, ChargingTypeRepository>();
             services.AddTransient<ISimpleRepo<Color>, ColorRepository>();
             services.AddTransient<ISimpleRepo<Department>, DepartmentRepository>();
@@ -74,6 +76,7 @@ namespace Diplom
             services.AddTransient<ISimpleRepo<ScreenType>, ScreenTypeRepository>();
             services.AddTransient<ISimpleRepo<Models.Model.simple.Type>, TypeRepository>();
             services.AddTransient<ISimpleRepo<Videocard>, VideocardRepository>();
+
 
             services.AddSession(options =>
             {

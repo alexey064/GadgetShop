@@ -75,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    Brand newtype = await DB.Brands.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    ChargingType newtype = await DB.Brands.FirstOrDefaultAsync(o => o.Id == type.Id);
                     newtype.Name = type.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -90,6 +90,11 @@ namespace Web.Repository
         public async Task<IEnumerable<ChargingType>> GetByParam(string param)
         {
             return await DB.ChargingTypes.Where(o => o.Name == param).ToListAsync();
+        }
+
+        public async Task<IEnumerable<ChargingType>> GetList(int skip, int count)
+        {
+            return await DB.ChargingTypes.Skip(skip).Take(count).ToListAsync();
         }
     }
 }

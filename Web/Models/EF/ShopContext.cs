@@ -17,7 +17,7 @@ namespace Diplom.Models.EF
         public virtual DbSet<ChargingType> ChargingTypes { get; set; }
         public virtual DbSet<OS> OS { get; set; }
         public virtual DbSet<Accessory> Accessories { get; set; }
-        public virtual DbSet<Brand> Brands { get; set; }
+        public virtual DbSet<ChargingType> Brands { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<MovementType> MovementTypes { get; set; }
