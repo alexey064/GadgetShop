@@ -75,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    Brand newcolor = await DB.Brands.FirstOrDefaultAsync(o => o.Id == color.Id);
+                    ChargingType newcolor = await DB.Brands.FirstOrDefaultAsync(o => o.Id == color.Id);
                     newcolor.Name = color.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -90,6 +90,11 @@ namespace Web.Repository
         public async Task<IEnumerable<Color>> GetByParam(string param)
         {
             return await DB.Colors.Where(o => o.Name == param).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Color>> GetList(int skip, int count)
+        {
+            return await DB.Colors.Skip(skip).Take(count).ToListAsync();
         }
     }
 }

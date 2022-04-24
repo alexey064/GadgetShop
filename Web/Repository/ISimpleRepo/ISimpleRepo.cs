@@ -9,6 +9,7 @@ namespace Web.Repository.ISimpleRepo
     {
         public Task<T> Get(int id);
         public Task<IEnumerable<T>> GetAll();
+        public Task<IEnumerable<T>> GetList(int skip, int count);
         public Task<IEnumerable<T>> GetByParam(string param);
         public Task<int> GetCount();
         public Task<bool> Update(T item);

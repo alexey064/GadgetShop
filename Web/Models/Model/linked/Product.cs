@@ -35,7 +35,7 @@ namespace Diplom.Models.Model
         public DateTime AddDate { get; set;}
         [ForeignKey("TypeId")]
         public virtual simple.Type Type { get; set; }
-        public virtual Brand Brand { get; set; }
+        public virtual ChargingType Brand { get; set; }
         public virtual Department Department { get; set; }
         public virtual Smartphone Smartphone { get; set; }
         [ForeignKey("ColorId")]

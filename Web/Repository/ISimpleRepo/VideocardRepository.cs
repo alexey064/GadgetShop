@@ -91,5 +91,10 @@ namespace Web.Repository
         {
             return await DB.Videocards.Where(o => o.Name == param).ToListAsync();
         }
+
+        public async Task<IEnumerable<Videocard>> GetList(int skip, int count)
+        {
+            return await DB.Videocards.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

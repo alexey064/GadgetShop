@@ -91,5 +91,10 @@ namespace Web.Repository
         {
             return await DB.ScreenTypes.Where(o => o.Name == param).ToListAsync();
         }
+
+        public async Task<IEnumerable<ScreenType>> GetList(int skip, int count)
+        {
+            return await DB.ScreenTypes.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

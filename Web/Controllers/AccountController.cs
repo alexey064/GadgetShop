@@ -89,5 +89,9 @@ namespace Diplom.Controllers
             }
             else return RedirectToAction("AccountSetting", "Shop");
         }
+        public IActionResult AccountSetting()
+        {
+            return View();
+        }
     }
 }

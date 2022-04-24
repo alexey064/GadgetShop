@@ -91,5 +91,10 @@ namespace Web.Repository
         {
             return await DB.Processors.Where(o => o.Name == param).ToListAsync();
         }
+
+        public async Task<IEnumerable<Processor>> GetList(int skip, int count)
+        {
+            return await DB.Processors.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

@@ -90,5 +90,10 @@ namespace Web.Repository
                 }
             }
         }
+
+        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetList(int skip, int count)
+        {
+            return await DB.Types.Skip(skip).Take(count).ToListAsync();
+        }
     }
 }

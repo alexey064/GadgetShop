@@ -9,14 +9,14 @@ using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class BrandRepository : ISimpleRepo<Brand>
+    public class BrandRepository : ISimpleRepo<ChargingType>
     {
         private ShopContext DB;
         public BrandRepository(ShopContext context) 
         {
             DB = context;
         }
-        public async Task<bool> Add(Brand brand)
+        public async Task<bool> Add(ChargingType brand)
         {
             DB.Brands.Add(brand);
             try
@@ -34,7 +34,7 @@ namespace Web.Repository
         {
             try
             {
-                Brand brand = DB.Brands.Find(id);
+                ChargingType brand = DB.Brands.Find(id);
                 DB.Brands.Remove(brand);
                 await DB.SaveChangesAsync();
                 return true;
@@ -50,16 +50,16 @@ namespace Web.Repository
             return await DB.Brands.CountAsync();
         }
 
-        public async Task<Brand> Get(int id)
+        public async Task<ChargingType> Get(int id)
         {
             return await DB.Brands.FirstOrDefaultAsync();
         }
-        public async Task<IEnumerable<Brand>> GetAll() 
+        public async Task<IEnumerable<ChargingType>> GetAll() 
         {
             return await DB.Brands.ToListAsync();
         }
 
-        public async Task<bool> Update(Brand brand)
+        public async Task<bool> Update(ChargingType brand)
         {
             if (brand.Id == 0)
             {
@@ -74,7 +74,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    Brand newbrand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == brand.Id);
+                    ChargingType newbrand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == brand.Id);
                     newbrand.Name = brand.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -86,9 +86,14 @@ namespace Web.Repository
             }
         }
 
-        public async Task<IEnumerable<Brand>> GetByParam(string param)
+        public async Task<IEnumerable<ChargingType>> GetByParam(string param)
         {
             return await DB.Brands.Where(o => o.Name == param).ToListAsync();
+        }
+
+        public async Task<IEnumerable<ChargingType>> GetList(int skip, int count)
+        {
+            return await DB.Brands.Skip(skip).Take(count).ToListAsync();
         }
     }
 }
