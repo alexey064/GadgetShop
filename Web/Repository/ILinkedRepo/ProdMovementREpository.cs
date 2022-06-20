@@ -1,10 +1,10 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 
 namespace Web.Repository.ILinkedRepo
 {

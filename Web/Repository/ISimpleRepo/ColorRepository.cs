@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -57,7 +57,7 @@ namespace Web.Repository
 
         public async Task<IEnumerable<Color>> GetAll()
         {
-            return await DB.Colors.ToListAsync();
+            return await DB.Colors.OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<bool> Update(Color color)
@@ -75,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    ChargingType newcolor = await DB.Brands.FirstOrDefaultAsync(o => o.Id == color.Id);
+                    Color newcolor = await DB.Colors.FirstOrDefaultAsync(o => o.Id == color.Id);
                     newcolor.Name = color.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<Color>> GetByParam(string param)
         {
-            return await DB.Colors.Where(o => o.Name == param).ToListAsync();
+            return await DB.Colors.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<Color>> GetList(int skip, int count)
         {
-            return await DB.Colors.Skip(skip).Take(count).ToListAsync();
+            return await DB.Colors.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

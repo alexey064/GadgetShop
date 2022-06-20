@@ -1,7 +1,7 @@
-﻿using Diplom.Models.Model;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 using Web.Repository.IProdMov;
 using Web.Repository.IProductRepo;
 

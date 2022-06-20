@@ -1,5 +1,5 @@
-﻿using Diplom.Models.Model;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Web.Models.Linked;
 
 namespace Web.Repository.Other
 {

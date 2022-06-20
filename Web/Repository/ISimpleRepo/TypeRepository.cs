@@ -1,26 +1,25 @@
-﻿using Diplom.Models.EF;
+﻿using Web.Models.EF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Diplom.Models.Model.simple;
 using Microsoft.EntityFrameworkCore;
 using Web.Repository.ISimpleRepo;
 
 namespace Web.Repository
 {
-    public class TypeRepository : ISimpleRepo<Diplom.Models.Model.simple.Type>
+    public class TypeRepository : ISimpleRepo<Models.Simple.Type>
     {
         private ShopContext DB;
         public TypeRepository(ShopContext context)
         {
             DB = context;
         }
-        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetByParam(string Category) 
+        public async Task<IEnumerable<Models.Simple.Type>> GetByParam(string Category) 
         {
-            return await DB.Types.Where(o => o.Category == Category).ToListAsync();
+            return await DB.Types.Where(o => o.Category == Category).OrderBy(o=>o.Name).ToListAsync();
         }
-        public async Task<bool> Add(Diplom.Models.Model.simple.Type type)
+        public async Task<bool> Add(Models.Simple.Type type)
         {
             DB.Types.Add(type);
             try
@@ -38,7 +37,7 @@ namespace Web.Repository
         {
             try
             {
-                Diplom.Models.Model.simple.Type type = DB.Types.Find(id);
+                Models.Simple.Type type = DB.Types.Find(id);
                 DB.Types.Remove(type);
                 await DB.SaveChangesAsync();
                 return true;
@@ -54,17 +53,17 @@ namespace Web.Repository
             return await DB.Types.CountAsync();
         }
 
-        public async Task<Diplom.Models.Model.simple.Type> Get(int id)
+        public async Task<Models.Simple.Type> Get(int id)
         {
             return await DB.Types.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
-        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetAll()
+        public async Task<IEnumerable<Web.Models.Simple.Type>> GetAll()
         {
-            return await DB.Types.ToArrayAsync();
+            return await DB.Types.OrderBy(o=>o.Name).ToListAsync();
         }
 
-        public async Task<bool> Update(Diplom.Models.Model.simple.Type type)
+        public async Task<bool> Update(Web.Models.Simple.Type type)
         {
             if (type.Id == 0)
             {
@@ -79,8 +78,11 @@ namespace Web.Repository
             {
                 try
                 {
-                    Diplom.Models.Model.simple.Type newtype = await DB.Types.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    Models.Simple.Type newtype = await DB.Types.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    newtype.Id= type.Id;
                     newtype.Name = type.Name;
+                    newtype.NormalizeName = type.NormalizeName;
+                    newtype.Category=type.Category;
                     await DB.SaveChangesAsync();
                     return true;
                 }
@@ -91,9 +93,9 @@ namespace Web.Repository
             }
         }
 
-        public async Task<IEnumerable<Diplom.Models.Model.simple.Type>> GetList(int skip, int count)
+        public async Task<IEnumerable<Web.Models.Simple.Type>> GetList(int skip, int count)
         {
-            return await DB.Types.Skip(skip).Take(count).ToListAsync();
+            return await DB.Types.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

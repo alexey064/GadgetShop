@@ -1,10 +1,10 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 
 namespace Web.Repository.IProductRepo
 {
@@ -21,7 +21,7 @@ namespace Web.Repository.IProductRepo
                 .Include(o => o.Notebook).ThenInclude(o => o.OS).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.Processor).Include(o => o.Notebook).ThenInclude(o => o.Videocard).Include(o => o.Notebook).ThenInclude(o => o.ScreenType)
                 .Include(o => o.Smartphone).ThenInclude(o => o.OS).Include(o => o.Smartphone).ThenInclude(o => o.Processor).Include(o => o.Smartphone).ThenInclude(o => o.ChargingType).Include(o => o.Smartphone).ThenInclude(o => o.ScreenType)
                 .Include(o => o.WireHeadphones).ThenInclude(o => o.ConnectionType)
-                .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType).FirstOrDefaultAsync(o => o.ProductId == id);
+                .Include(o => o.WirelessHeadphones).ThenInclude(o => o.ChargingType).AsNoTracking().FirstOrDefaultAsync(o => o.ProductId == id);
         }
         public async Task<IEnumerable<Product>> GetAll()
         {
@@ -51,7 +51,7 @@ namespace Web.Repository.IProductRepo
 
         public async Task<bool> Update(Product modified)
         {
-            Product Original = DB.Products.Find(modified.ProductId);
+            Product Original = DB.Products.Where(o => o.ProductId == modified.ProductId).First();
             Original.AddDate = modified.AddDate;
             Original.Count = modified.Count;
             Original.Description = modified.Description;

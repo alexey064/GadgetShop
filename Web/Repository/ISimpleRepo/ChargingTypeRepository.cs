@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -52,12 +52,12 @@ namespace Web.Repository
 
         public async Task<ChargingType> Get(int id)
         {
-            return await DB.ChargingTypes.FirstOrDefaultAsync();
+            return await DB.ChargingTypes.FirstOrDefaultAsync(o=>o.Id==id);
         }
 
         public async Task<IEnumerable<ChargingType>> GetAll()
         {
-            return await DB.ChargingTypes.ToListAsync();
+            return await DB.ChargingTypes.OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<bool> Update(ChargingType type)
@@ -75,7 +75,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    ChargingType newtype = await DB.Brands.FirstOrDefaultAsync(o => o.Id == type.Id);
+                    ChargingType newtype = await DB.ChargingTypes.FirstOrDefaultAsync(o => o.Id == type.Id);
                     newtype.Name = type.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<ChargingType>> GetByParam(string param)
         {
-            return await DB.ChargingTypes.Where(o => o.Name == param).ToListAsync();
+            return await DB.ChargingTypes.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<ChargingType>> GetList(int skip, int count)
         {
-            return await DB.ChargingTypes.Skip(skip).Take(count).ToListAsync();
+            return await DB.ChargingTypes.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

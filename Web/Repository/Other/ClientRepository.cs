@@ -1,13 +1,14 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
+using Web.Models.Simple;
+using Web.Models.Linked;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
 using Web.Repository.Other;
+
 
 namespace Web.Repository.ILinkedRepo
 {
@@ -15,9 +16,9 @@ namespace Web.Repository.ILinkedRepo
     {
         private ShopContext DB;
         private ISimpleRepo<Department> DepRepo;
-        private ISimpleRepo<Diplom.Models.Model.simple.Type> TypeRepo;
+        private ISimpleRepo<Models.Simple.Type> TypeRepo;
 
-        public ClientRepository(ShopContext context, ISimpleRepo<Department> DepRepository, ISimpleRepo<Diplom.Models.Model.simple.Type> TypeRepository) 
+        public ClientRepository(ShopContext context, ISimpleRepo<Department> DepRepository, ISimpleRepo<Models.Simple.Type> TypeRepository) 
         {
             DB = context;
             DepRepo = DepRepository;
@@ -54,7 +55,7 @@ namespace Web.Repository.ILinkedRepo
 
         public Task<Client> find(string name)
         {
-            return DB.Clients.Where(o => o.NickName == name).FirstOrDefaultAsync();
+            return DB.Clients.Where(o => o.NickName.Equals(name)).FirstOrDefaultAsync();
         }
 
         public async Task<int> GetCount()

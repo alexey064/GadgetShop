@@ -1,10 +1,10 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 
 namespace Web.Repository
 {
@@ -17,25 +17,25 @@ namespace Web.Repository
         }
         public async Task<Accessory> GetShort(int id)
         {
-            return await DB.Accessories.Include(o => o.product).ThenInclude(o => o.Brand)
-            .Include(o => o.product).ThenInclude(o => o.Color).Include(o => o.product).ThenInclude(o => o.Department)
+            return await DB.Accessories.Include(o => o.Product).ThenInclude(o => o.Brand)
+            .Include(o => o.Product).ThenInclude(o => o.Color).Include(o => o.Product).ThenInclude(o => o.Department)
             .FirstOrDefaultAsync(o => o.Id == id);
         }
         public async Task<Accessory> GetFull(int id)
         {
-            return await DB.Accessories.Include(o => o.product).ThenInclude(o => o.Brand)
-            .Include(o => o.product).ThenInclude(o => o.Color).Include(o => o.product).ThenInclude(o => o.Department)
+            return await DB.Accessories.Include(o => o.Product).ThenInclude(o => o.Brand)
+            .Include(o => o.Product).ThenInclude(o => o.Color).Include(o => o.Product).ThenInclude(o => o.Department)
             .FirstOrDefaultAsync(o => o.Id == id);
         }
         public async Task<IEnumerable<Accessory>> GetListShort(int skip, int count)
         {
-            return await DB.Accessories.Include(o => o.product).Skip(skip).Take(count).ToArrayAsync();
+            return await DB.Accessories.Include(o => o.Product).Skip(skip).Take(count).ToArrayAsync();
         }
 
         public async Task<IEnumerable<Accessory>> GetListFull(int skip, int count)
         {
-            return await DB.Accessories.Include(o => o.product).ThenInclude(o => o.Brand)
-            .Include(o => o.product).ThenInclude(o => o.Color).Include(o => o.product).ThenInclude(o => o.Department)
+            return await DB.Accessories.Include(o => o.Product).ThenInclude(o => o.Brand)
+            .Include(o => o.Product).ThenInclude(o => o.Color).Include(o => o.Product).ThenInclude(o => o.Department)
             .Skip(skip).Take(count).ToArrayAsync();
 
         }
@@ -43,8 +43,8 @@ namespace Web.Repository
         {
             try
             {
-                Accessory accessory = DB.Accessories.Where(o => o.Id == id).First();
-                DB.Products.Remove(accessory.product);
+                Accessory accessory = DB.Accessories.Include(o=>o.Product).Where(o => o.Id == id).First();
+                DB.Products.Remove(accessory.Product);
                 DB.Accessories.Remove(accessory);
                 await DB.SaveChangesAsync();
                 return true;
@@ -67,17 +67,17 @@ namespace Web.Repository
             }
             else
             {
-                var prev = DB.Accessories.Include(o => o.product).Where(o => o.Id == accessory.Id).First();
-                prev.product.BrandId = accessory.product.BrandId;
-                prev.product.ColorId = accessory.product.ColorId;
-                prev.product.DepartmentId = accessory.product.DepartmentId;
-                prev.product.Description = accessory.product.Description;
-                prev.product.Discount = accessory.product.Discount;
-                prev.product.DiscountDate = accessory.product.DiscountDate;
-                prev.product.Name = accessory.product.Name;
-                prev.product.Photo = accessory.product.Photo;
-                prev.product.Price = accessory.product.Price;
-                prev.product.TypeId = accessory.product.TypeId;
+                var prev = DB.Accessories.Include(o => o.Product).Where(o => o.Id == accessory.Id).First();
+                prev.Product.BrandId = accessory.Product.BrandId;
+                prev.Product.ColorId = accessory.Product.ColorId;
+                prev.Product.DepartmentId = accessory.Product.DepartmentId;
+                prev.Product.Description = accessory.Product.Description;
+                prev.Product.Discount = accessory.Product.Discount;
+                prev.Product.DiscountDate = accessory.Product.DiscountDate;
+                prev.Product.Name = accessory.Product.Name;
+                prev.Product.Photo = accessory.Product.Photo;
+                prev.Product.Price = accessory.Product.Price;
+                prev.Product.TypeId = accessory.Product.TypeId;
             }
             try
             {
@@ -89,7 +89,7 @@ namespace Web.Repository
 
         public async Task<bool> Add(Accessory accessory)
         {
-            accessory.product.AddDate = DateTime.Now;
+            accessory.Product.AddDate = DateTime.Now;
             DB.Accessories.Add(accessory);
             try
             {

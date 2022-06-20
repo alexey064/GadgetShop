@@ -1,10 +1,8 @@
-﻿using System;
-using Diplom.Models.Model;
-using Diplom.Models.Model.simple;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
+using Web.Models.Linked;
+using Web.Models.Simple;
 
-namespace Diplom.Models.EF
+namespace Web.Models.EF
 {
     public class ShopContext : DbContext
     {
@@ -17,7 +15,7 @@ namespace Diplom.Models.EF
         public virtual DbSet<ChargingType> ChargingTypes { get; set; }
         public virtual DbSet<OS> OS { get; set; }
         public virtual DbSet<Accessory> Accessories { get; set; }
-        public virtual DbSet<ChargingType> Brands { get; set; }
+        public virtual DbSet<Brand> Brands { get; set; }
         public virtual DbSet<Client> Clients { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<MovementType> MovementTypes { get; set; }
@@ -29,7 +27,7 @@ namespace Diplom.Models.EF
         public virtual DbSet<PurchaseHistory> PurchaseHistories { get; set; }
         public virtual DbSet<ScreenType> ScreenTypes { get; set; }
         public virtual DbSet<Smartphone> Smartphones { get; set; }
-        public virtual DbSet<Model.simple.Type> Types { get; set; }
+        public virtual DbSet<Simple.Type> Types { get; set; }
         public virtual DbSet<WireHeadphone> WireHeadphones { get; set; }
         public virtual DbSet<WirelessHeadphone> WirelessHeadphones { get; set; }
         public virtual DbSet<Color> Colors { get; set; }

@@ -1,4 +1,4 @@
-﻿@model Diplom.Models.ViewModel.MainPageViewModel
+﻿@model MainPageViewModel
 <link rel="stylesheet" href="~/css/Item.css"/>
 <body>
     <h4>newly added</h4>
@@ -7,11 +7,11 @@
         {
             if (item.Smartphone != null)
             {
-                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+                @await Html.PartialAsync("SmartphoneItem", item.Smartphone)
             }
             else if (item.Notebook != null)
             {
-                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+                @await Html.PartialAsync("NotebookItem", item.Notebook)
             }
             else if (item.Accessory != null)
             {
@@ -33,11 +33,11 @@
         {
             if (item.Smartphone != null)
             {
-                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+                @await Html.PartialAsync("SmartphoneItem", item.Smartphone)
             }
             else if (item.Notebook != null)
             {
-                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+                @await Html.PartialAsync("NotebookItem", item.Notebook)
             }
             else if (item.Accessory != null)
             {
@@ -59,11 +59,11 @@
         {
             if (item.Smartphone != null)
             {
-                @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+                @await Html.PartialAsync("SmartphoneItem", item.Smartphone)
             }
             else if (item.Notebook != null)
             {
-                @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+                @await Html.PartialAsync("NotebookItem", item.Notebook)
             }
             else if (item.Accessory != null)
             {

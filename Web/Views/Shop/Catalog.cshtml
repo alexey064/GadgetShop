@@ -5,11 +5,11 @@
     {
         if (item.Smartphone != null)
         {
-            @await Html.PartialAsync("SmartphoneItem.cshtml", item.Smartphone)
+            @await Html.PartialAsync("SmartphoneItem", item.Smartphone)
         }
         else if (item.Notebook != null)
         {
-            @await Html.PartialAsync("NotebookItem.cshtml", item.Notebook)
+            @await Html.PartialAsync("NotebookItem", item.Notebook)
         }
         else if (item.Accessory != null)
         {

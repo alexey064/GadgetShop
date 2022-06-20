@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <None Remove="style.css" />
-    <None Remove="Areas\DataEdit\Views\Simple\ClientTable.css" />
+    <None Remove="Areas\Admin\Views\Simple\ClientTable.css" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +43,17 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
 
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\_ViewImports.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Sample\" />
   </ItemGroup>
 
 </Project>

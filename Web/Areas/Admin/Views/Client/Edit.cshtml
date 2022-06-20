@@ -1,0 +1,83 @@
+﻿@model Web.Models.ViewModel.ClientViewModel;
+
+@{
+
+    Layout = "_Sidebar";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>Edit</title>
+</head>
+<body>
+
+    <h4>Client</h4>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <form asp-action="Save">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />
+                <div class="form-group">
+                    <label asp-for="EditItem.FullName" class="control-label">FullName</label>
+                    <input value="@Model.EditItem.FullName" name="FullName" asp-for="EditItem.FullName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Phone" class="control-label">Phone</label>
+                    <input value="@Model.EditItem.Phone" name="Phone" asp-for="EditItem.Phone" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Address" class="control-label">Address</label>
+                    <input value="@Model.EditItem.Address" name="Address" asp-for="EditItem.Address" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Post" class="control-label">Post</label>
+                    <select name="PostId" asp-for="EditItem.Post" class="form-select">
+                        @foreach (Web.Models.Simple.Type item in Model.Posts)
+                        {
+                            if (Model.EditItem.PostId == item.Id)
+                            {
+                                <option selected value="@item.Id">@item.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Department" class="control-label">Department</label>
+                    <select class="form-select" name="DepartmentId" asp-for="EditItem.Department">
+                        @foreach (Department item in Model.Departments)
+                        {
+                            if (Model.EditItem.DepartmentId == item.DepartmentId)
+                            {
+                                <option value="@item.DepartmentId">@item.Adress</option>
+                            }
+                            else
+                            {
+                                <option value="@item.DepartmentId">@item.Adress</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-success" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a class="btn btn-danger" asp-action="List">Back to List</a>
+    </div>
+
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>

@@ -1,22 +1,22 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
-    public class BrandRepository : ISimpleRepo<ChargingType>
+    public class BrandRepository : ISimpleRepo<Brand>
     {
         private ShopContext DB;
         public BrandRepository(ShopContext context) 
         {
             DB = context;
         }
-        public async Task<bool> Add(ChargingType brand)
+        public async Task<bool> Add(Brand brand)
         {
             DB.Brands.Add(brand);
             try
@@ -34,7 +34,7 @@ namespace Web.Repository
         {
             try
             {
-                ChargingType brand = DB.Brands.Find(id);
+                Brand brand = DB.Brands.Find(id);
                 DB.Brands.Remove(brand);
                 await DB.SaveChangesAsync();
                 return true;
@@ -50,16 +50,16 @@ namespace Web.Repository
             return await DB.Brands.CountAsync();
         }
 
-        public async Task<ChargingType> Get(int id)
+        public async Task<Brand> Get(int id)
         {
-            return await DB.Brands.FirstOrDefaultAsync();
+            return await DB.Brands.FirstOrDefaultAsync(o=>o.Id==id);
         }
-        public async Task<IEnumerable<ChargingType>> GetAll() 
+        public async Task<IEnumerable<Brand>> GetAll() 
         {
-            return await DB.Brands.ToListAsync();
+            return await DB.Brands.OrderBy(o=>o.Name).ToListAsync();
         }
 
-        public async Task<bool> Update(ChargingType brand)
+        public async Task<bool> Update(Brand brand)
         {
             if (brand.Id == 0)
             {
@@ -74,7 +74,7 @@ namespace Web.Repository
             {
                 try
                 {
-                    ChargingType newbrand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == brand.Id);
+                    Brand newbrand = await DB.Brands.FirstOrDefaultAsync(o => o.Id == brand.Id);
                     newbrand.Name = brand.Name;
                     await DB.SaveChangesAsync();
                     return true;
@@ -86,14 +86,14 @@ namespace Web.Repository
             }
         }
 
-        public async Task<IEnumerable<ChargingType>> GetByParam(string param)
+        public async Task<IEnumerable<Brand>> GetByParam(string param)
         {
-            return await DB.Brands.Where(o => o.Name == param).ToListAsync();
+            return await DB.Brands.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
-        public async Task<IEnumerable<ChargingType>> GetList(int skip, int count)
+        public async Task<IEnumerable<Brand>> GetList(int skip, int count)
         {
-            return await DB.Brands.Skip(skip).Take(count).ToListAsync();
+            return await DB.Brands.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

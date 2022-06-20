@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Diplom.Migrations
+namespace Web.Migrations
 {
     public partial class start17 : Migration
     {

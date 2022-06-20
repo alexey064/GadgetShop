@@ -1,0 +1,29 @@
+﻿@model Department;
+@{
+    Layout = "_Sidebar";
+}
+<!DOCTYPE html>
+    <h4>Accessory</h4>
+    <hr/>
+    <div class="row">
+        <div class="col">
+            <form asp-action="Update" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                    <input name="DepartmentId" value="@Model.DepartmentId" type="hidden" asp-for="DepartmentId"/>
+                    <div class="form-group">
+                        <label asp-for="Adress" class="control-label">Adress</label>
+                        <input asp-for="Adress" value="@Model.Adress" name="Adress"  class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-success" />
+                    </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a class="btn btn-danger" asp-action="List">Back to List</a>
+    </div>
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }

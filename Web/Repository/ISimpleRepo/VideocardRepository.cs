@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -57,8 +57,8 @@ namespace Web.Repository
 
         public async Task<IEnumerable<Videocard>> GetAll()
         {
-            return await DB.Videocards.ToArrayAsync();
-        }
+            return await DB.Videocards.OrderBy(o=>o.Name).ToListAsync();
+         }
 
         public async Task<bool> Update(Videocard videocard)
         {
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<Videocard>> GetByParam(string param)
         {
-            return await DB.Videocards.Where(o => o.Name == param).ToListAsync();
+            return await DB.Videocards.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<Videocard>> GetList(int skip, int count)
         {
-            return await DB.Videocards.Skip(skip).Take(count).ToListAsync();
+            return await DB.Videocards.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

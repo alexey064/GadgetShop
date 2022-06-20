@@ -1,4 +1,7 @@
-﻿<head>
+﻿<!-- 
+этот файл используется в качестве шапки для всех страниц каталога магазина.   
+--!>
+<head>
     <title>Main Page</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/Header.css"/>
@@ -16,25 +19,25 @@
                 <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 w-100 justify-content-center">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" asp-action="Main">Main</a>
+                            <a class="nav-link active" aria-current="page" asp-controller="Shop" asp-action="Main">Main</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Notebook)">Notebook</a>
+                            <a class="nav-link active" aria-current="page" asp-controller="Shop" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Notebook)">Notebook</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Smartphone)">Smartphones</a>
+                            <a class="nav-link active" aria-current="page" asp-controller="Shop" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Smartphone)">Smartphones</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Headphones
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(WireHeadphone)">Wired</a></li>
-                                <li><a class="dropdown-item" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(WirelessHeadphone)">Wireless</a></li>
+                                <li><a class="dropdown-item" asp-controller="Shop" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(WireHeadphone)">Wired</a></li>
+                                <li><a class="dropdown-item" asp-controller="Shop" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(WirelessHeadphone)">Wireless</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Accessory)">Accessories</a>
+                            <a class="nav-link active" aria-current="page" asp-controller="Shop" asp-action="Catalog" asp-route-page="1" asp-route-type="@nameof(Accessory)">Accessories</a>
                         </li>
                         @if (User.Identity.Name == null)
                         {
@@ -43,7 +46,7 @@
                             </li>
                         }
                         <li>
-                            <a class="nav-item" asp-action="ShoppingCart">
+                            <a class="nav-item" asp-controller="Cart" asp-action="ShoppingCart">
                                 <img src="~/Files/Other/shopping_cart.png" width="30" />
                             </a>
                         </li>
