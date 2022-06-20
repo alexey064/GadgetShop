@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Diplom.Models.Interfaces
+namespace Web.Models.Interfaces
 {
     public interface ICreateViewModel
     {

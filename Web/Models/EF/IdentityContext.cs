@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Models.EF
+namespace Web.Models.EF
 {
     public class IdentityContext :IdentityDbContext
     {

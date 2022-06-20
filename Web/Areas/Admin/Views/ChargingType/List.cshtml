@@ -1,0 +1,47 @@
+﻿@model IEnumerable<ChargingType>
+@{
+    Layout = "_Sidebar";
+}
+    <p>
+        <a class="btn btn-primary" asp-action="Edit">Create New</a>
+    </p>
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a class="item" name="id" asp-route-id="@item.Id" asp-action="Edit">
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </a>
+                            (<a class="form-label" name="id" asp-route-Id="@item.Id" asp-action="Delete">Delete</a>
+                            )
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    @if (ViewBag.MaxPage != 1)
+    {
+        <div class="row my-4">
+            <div class="text-center">
+                @for (int i = 1; i < ViewBag.MaxPage + 1; i++)
+                {
+                   <a class="btn btn-outline-primary" asp-action="List" asp-route-Page="@i">@i</a>   
+                }
+            </div>
+        </div>
+    }

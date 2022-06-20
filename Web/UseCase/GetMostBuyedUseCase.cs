@@ -1,7 +1,7 @@
-﻿using Diplom.Models.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 using Web.Repository;
 using Web.Repository.IProductRepo;
 

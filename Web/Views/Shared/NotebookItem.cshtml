@@ -1,0 +1,51 @@
+﻿@model Notebook
+<div class="container-fluid bg-trasparent mx-0 px-1 py-2" style="width: 20rem;">
+    <div class="card h-100 shadow-sm">
+        <img src="@Model.Product.Photo" class="card-img-top" alt="...">
+        <div class="card-body">
+            <div class="card-title">
+                <a style="text-decoration:none; color:black;" asp-action="Product" asp-route-id="@Model.Product.ProductId">@Model.Product.Name</a>
+            </div>
+            <table class="table table-borderless">
+                <tr>
+                    <td>OS:</td>
+                    <td>@Model.OS.Name</td>
+                </tr>
+                <tr>
+                    <td>Proccessor:</td>
+                    <td>@Model.Processor.Name</td>
+                </tr>
+                <tr>
+                    <td>Videocard:</td>
+                    <td>@Model.Videocard.Name</td>
+                </tr>
+                <tr>
+                    <td>Camera:</td>
+                    <td>@Model.Camera</td>
+                </tr>
+                <tr>
+                    <td>Screen size:</td>
+                    <td>@Model.ScreenSize</td>
+                </tr>
+            </table>
+        </div>
+        <div class="mx-1">
+            @if (Model.Product.Discount > 0)
+            {
+                <div style="font-size:larger; font-weight:bold;"><s>@Model.Product.Price</s></div>
+            }
+            <div class=" my-1" style="font-size: larger; font-weight: bold">
+                @{if(Model.Product.Discount==null) {Model.Product.Discount=0;}}
+                @(Model.Product.Price-Model.Product.Discount) Р
+                @if (Model.Product.Count > 0)
+                {
+                    <button type="button" onclick="GetProductToModal(@Model.Product.ProductId)" style="margin-left:10px;" class="btn btn-card btn-warning">Купить</button>
+                }
+                else
+                {
+                    <label style="margin-left:10px">Нет в наличии</label>
+                }
+            </div>
+        </div>
+    </div>
+</div>

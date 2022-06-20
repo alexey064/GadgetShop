@@ -3,21 +3,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Diplom.Models.EF;
+using Web.Models.EF;
 using Microsoft.AspNetCore.Identity;
 using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Web;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Web.Repository;
-using Diplom.Models.Model;
-using Diplom.Models.Model.simple;
 using Web.Repository.ISimpleRepo;
 using Web.Repository.IProdMov;
+using Web.Repository.IProductRepo;
+using Web.Repository.ILinkedRepo;
 using Web.UseCase;
+using Web.Models.Linked;
+using Web.Models.Simple;
 
-namespace Diplom
+namespace Web
 {
     public class Startup
     {
@@ -64,18 +65,29 @@ namespace Diplom
             services.AddTransient<ILinkedRepo<Smartphone>, SmartphoneRepository>();
             services.AddTransient<ILinkedRepo<WireHeadphone>, WireHeadRepository>();
             services.AddTransient<ILinkedRepo<WirelessHeadphone>, WirelessHeadRepository>();
+            services.AddTransient<ILinkedRepo<ProdMovement>, ProdMovementRepository>();
+            services.AddTransient<ILinkedRepo<Client>, ClientRepository>();
 
-            services.AddTransient<ISimpleRepo<ChargingType>, BrandRepository>();
+            services.AddTransient<ISimpleRepo<Brand>, BrandRepository>();
             services.AddTransient<ISimpleRepo<ChargingType>, ChargingTypeRepository>();
             services.AddTransient<ISimpleRepo<Color>, ColorRepository>();
             services.AddTransient<ISimpleRepo<Department>, DepartmentRepository>();
             services.AddTransient<ISimpleRepo<MovementType>, MovementTypeRepository>();
             services.AddTransient<ISimpleRepo<OS>, OSRepository>();
             services.AddTransient<ISimpleRepo<Processor>, ProcessorRepository>();
-            services.AddTransient<IProdMov<Provider>, ProviderRepository>();
             services.AddTransient<ISimpleRepo<ScreenType>, ScreenTypeRepository>();
-            services.AddTransient<ISimpleRepo<Models.Model.simple.Type>, TypeRepository>();
+            services.AddTransient<ISimpleRepo<Models.Simple.Type>, TypeRepository>();
             services.AddTransient<ISimpleRepo<Videocard>, VideocardRepository>();
+
+            services.AddTransient<IProdMov<Provider>, ProviderRepository>();
+            services.AddTransient<IProdMov<PurchaseHistory>, PurchHistoryRepository>();
+
+            services.AddTransient<IProductRepo<Product>, ProductRepository>();
+
+            services.AddTransient<IUseCase<GetShoppingCartUseCase>, GetShoppingCartUseCase>();
+            services.AddTransient<IUseCase<AddToCartUseCase>, AddToCartUseCase>();
+            services.AddTransient<IUseCase<DeleteFromShoppingCartUseCase>, DeleteFromShoppingCartUseCase>();
+            services.AddTransient<IUseCase<RegisterUseCase>, RegisterUseCase>();
 
 
             services.AddSession(options =>
@@ -102,12 +114,12 @@ namespace Diplom
             app.UseSession();
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(name: "Api", pattern: "{controller}/{action}", constraints: new { Controller = "api" });
+                endpoints.MapControllerRoute(name: "Api", pattern: "{area:exists}/{controller}/{action}", constraints: new { Controller = "api" });
+                endpoints.MapAreaControllerRoute(areaName: "Admin" ,name: "List", pattern: "{controller}/{action}/{Page}");
                 endpoints.MapControllerRoute(name: "Search", pattern: "shop/search/{type}/{Page?}");
-                endpoints.MapControllerRoute(name: "Catalog", pattern: "shop/catalog/{type}/{Page?}");
-                endpoints.MapControllerRoute(name: "item", pattern: "/{controller}/{action}/{Table}/{Page?}", constraints: new {Controller="Simple", action= "ItemList" });
-                endpoints.MapControllerRoute(name: "List", pattern: "{controller}/{action}/{Page}");
-                endpoints.MapControllerRoute(name: "Default", pattern: "/{controller=Shop}/{action=main}");
+                endpoints.MapControllerRoute(name: "Catalog", pattern: "shop/{type}/{Page?}");
+                endpoints.MapControllerRoute(name: "AreaDefault", pattern: "{area}/{controller=shop}/{action=main}");
+                endpoints.MapControllerRoute(name: "Default", pattern: "{controller=shop}/{action=main}");
             });
         }
     }

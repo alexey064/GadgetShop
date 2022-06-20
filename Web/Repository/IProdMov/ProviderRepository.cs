@@ -1,21 +1,23 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.IProdMov;
-using Web.Repository.ISimpleRepo;
+using Web.Repository.IProductRepo;
+using Web.Models.Linked;
 
 namespace Web.Repository
 {
     public class ProviderRepository : IProdMov<Provider>
     {
         private ShopContext DB;
-        public ProviderRepository(ShopContext context)
+        private IProductRepo<Product> ProductRepo;
+        public ProviderRepository(ShopContext context, IProductRepo<Product> ProductRepository)
         {
             DB = context;
+            ProductRepo= ProductRepository;
         }
         public async Task<bool> Add(Provider provider)
         {
@@ -36,6 +38,7 @@ namespace Web.Repository
             try
             {
                 Provider provider = await DB.Providers.Include(o => o.ProdMovement).FirstAsync(o => o.Id == id);
+                int s = 0;
                 foreach (ProdMovement item in provider.ProdMovement)
                 {
                     Product prod = DB.Products.Where(o => o.ProductId == item.ProductId).First();
@@ -107,7 +110,7 @@ namespace Web.Repository
 
         public async Task<Provider> GetFull(int id)
         {
-            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).FirstOrDefaultAsync(o => o.Id == id);
+            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<IEnumerable<Provider>> GetListShort(int skip, int count)
@@ -117,7 +120,7 @@ namespace Web.Repository
 
         public async Task<IEnumerable<Provider>> GetListFull(int skip, int count)
         {
-            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).Skip(skip).Take(count).ToListAsync();
+            return await DB.Providers.Include(o => o.Department).Include(o=>o.ProdMovement).ThenInclude(o=>o.Product).Skip(skip).Take(count).ToListAsync();
         }
 
         public async Task<bool> ProdMoveDelete(int MoveId)
@@ -138,9 +141,32 @@ namespace Web.Repository
             }
 
         }
-        public Task<bool> ProdMoveAdd(Provider Container, int ProductId, int Count)
+        public async Task<bool> ProdMoveAdd(int ContainerId, ProdMovement prod)
         {
-            throw new NotImplementedException();
+            
+            Provider prov =  await GetFull(ContainerId);
+            ProdMovement ExistedMove = prov.ProdMovement.Find(x => x.ProductId == prod.ProductId);
+            if (ExistedMove == null)
+            {//If object is not in DB then add to db
+                //check if this product is added earlier
+                prov.ProdMovement.Add(prod);
+                await Update(prov);
+                Product pr = await ProductRepo.Get(prod.ProductId);
+                pr.Count += prod.Count;
+                await ProductRepo.Update(pr);
+            }
+            else
+            {
+                int ChangedCount = prod.Count - ExistedMove.Count;
+                Product product = await ProductRepo.Get(ExistedMove.ProductId);
+                product.Count = product.Count + ChangedCount;
+                await ProductRepo.Update(product);
+                ExistedMove.Count = prod.Count;
+                ExistedMove.ProductId = prod.ProductId;
+                await Update(prov);
+            }
+
+            return true;
         }
 
         public Task<PurchaseHistory> FindByUserName(string UserName)

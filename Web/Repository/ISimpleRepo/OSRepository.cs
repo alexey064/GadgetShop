@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -57,7 +57,7 @@ namespace Web.Repository
 
         public async Task<IEnumerable<OS>> GetAll()
         {
-            return await DB.OS.ToListAsync();
+            return await DB.OS.OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<bool> Update(OS os)
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<OS>> GetByParam(string param)
         {
-            return await DB.OS.Where(o => o.Name == param).ToListAsync();
+            return await DB.OS.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<OS>> GetList(int skip, int count)
         {
-            return await DB.OS.Skip(skip).Take(count).ToListAsync();
+            return await DB.OS.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

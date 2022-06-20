@@ -1,0 +1,20 @@
+﻿@model PurchaseHistory
+<div class="text-center">
+    <form>
+        <input hidden name="id" value="@Model.Id" />
+                 <div class="form-group">
+                    <label asp-for="Adress" class="control-label">Adress</label>
+                    <input value="@Model.Client.Address" name="Adress" asp-for="Adress" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone" class="control-label">Phone</label>
+                    <input value="@Model.Client.Phone" name="Phone" asp-for="Phone" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone" class="control-label">Comment</label>
+                    <input name="Comment" asp-for="Comment" class="form-control" />
+                </div>
+
+        <button class="btn btn-success" asp-action="CompleteOrder">Оплатить</button>
+    </form>
+</div>

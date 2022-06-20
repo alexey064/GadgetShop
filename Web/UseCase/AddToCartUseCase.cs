@@ -1,12 +1,13 @@
-﻿using Diplom.Models.Model;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 using Web.Repository;
 using Web.Repository.ILinkedRepo;
 using Web.Repository.IProdMov;
 using Web.Repository.IProductRepo;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.UseCase
 {
@@ -17,14 +18,17 @@ namespace Web.UseCase
         private ILinkedRepo<ProdMovement> ProdRepo;
         private ClientRepository ClientRepo;
         private IProductRepo<Product> ProductRepo;
-        public AddToCartUseCase(IHttpContextAccessor accessor, ILinkedRepo<Client> ClientRepository,
-            IProdMov<PurchaseHistory> HistRepository, ILinkedRepo<ProdMovement> ProdRepository, IProductRepo<Product> ProductRepository) 
+        private ISimpleRepo<Web.Models.Simple.Type> TypeRepo;
+        public AddToCartUseCase(IHttpContextAccessor accessor,ILinkedRepo<Client> clientRepo,
+            IProdMov<PurchaseHistory> histRepo, ILinkedRepo<ProdMovement> prodRepo, IProductRepo<Product> producttRepo, 
+            ISimpleRepo<Web.Models.Simple.Type> typeRepo)
         {
+            HistRepo = histRepo;
+            ProdRepo = prodRepo;
+            ClientRepo = (ClientRepository)clientRepo;
+            ProductRepo = producttRepo;
             _HttpContextAccessor = accessor;
-            HistRepo = HistRepository;
-            ProdRepo = ProdRepository;
-            ClientRepo = (ClientRepository)ClientRepository;
-            ProductRepo = ProductRepository;
+            TypeRepo = typeRepo;
         }
         public async Task<bool> Execute(int id, int Count, string UserName)
         {
@@ -35,7 +39,7 @@ namespace Web.UseCase
                 {//Если на пользователя не зарегистрирована корзина продуктов, то надо её создать
                     hist = new PurchaseHistory();
                     hist.Client = await ClientRepo.find(_HttpContextAccessor.HttpContext.User.Identity.Name);
-                    hist.StatusId = 11;
+                    hist.StatusId = TypeRepo.GetByParam("Status").Result.First(o => o.NormalizeName == "InCart").Id;
                     hist.ProdMovement = new List<ProdMovement>();
                     hist.DepartmentId = ProductRepo.Get(id).Result.DepartmentId;
                     await HistRepo.Update(hist);
@@ -53,6 +57,7 @@ namespace Web.UseCase
                     prod.ProductId = id;
                     prod.MovementTypeId = 2;
                     hist.ProdMovement.Add(prod);
+                    prod.TotalPrice = prod.Count * ProductRepo.Get(id).Result.Price;
                     await HistRepo.Update(hist);
                 }
                 Product product = await ProductRepo.Get(id);

@@ -1,12 +1,13 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using Web.Models.Linked;
+using Web.Models.ViewModel;
 using Web.Repository;
+using Web.UseCase;
 
-namespace Diplom.Controllers
+namespace Web.Controllers
 {
     public class AccountController : Controller
     {
@@ -21,45 +22,23 @@ namespace Diplom.Controllers
         }
         public IActionResult AccessDenied(string ReturnUrl) 
         {
-            return Redirect("/");
+            return Redirect("/shop/main");
         }
         [HttpPost]
-        public async Task<IActionResult> Register(DEL_RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            RegisterUseCase register = (RegisterUseCase) HttpContext.RequestServices.GetService<IUseCase<RegisterUseCase>>();
+            bool result = await register.Execute(model);
+            if (result) 
             {
-                var user = new IdentityUser
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                };
-                var result = await userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    Client client = new Client();
-                    client.NickName = user.UserName;
-                    client.Email = user.Email;
-                    client.PostId = 14;
-                    client.DepartmentId = 1;
-                    if (await ClientRepo.Add(client))
-                    {
-
-                    }
-                    await signInManager.SignInAsync(user, isPersistent: false);
-                    return Redirect("/");
-                }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError("", error.Description);
-                }
-                ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+                //TODO
             }
-            return View("/Shop/Main",model);
+            return Redirect("/shop/main");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(DEL_LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -70,13 +49,13 @@ namespace Diplom.Controllers
                     ModelState.AddModelError("", "Неправильный логин и (или) пароль");
                 }
             }
-            return RedirectToAction("main", "shop");
+            return Redirect("/shop/main");
         }
 
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
-            return RedirectToAction("main", "shop");
+            return Redirect("/shop/main");
         }
         public async Task<IActionResult> PasswordChanged(string oldPassword, string newPassword, string ConfirmPassword) 
         {

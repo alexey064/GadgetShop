@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -52,12 +52,12 @@ namespace Web.Repository
 
         public async Task<MovementType> Get(int id)
         {
-            return await DB.MovementTypes.FirstAsync(o => o.Id == id);
+            return await DB.MovementTypes.FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public async Task<IEnumerable<MovementType>> GetAll()
         {
-            return await DB.MovementTypes.ToListAsync();
+            return await DB.MovementTypes.OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<bool> Update(MovementType type)
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<MovementType>> GetByParam(string param)
         {
-            return await DB.MovementTypes.Where(o => o.Name == param).ToListAsync();
+            return await DB.MovementTypes.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<MovementType>> GetList(int skip, int count)
         {
-            return await DB.MovementTypes.Skip(skip).Take(count).ToListAsync();
+            return await DB.MovementTypes.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

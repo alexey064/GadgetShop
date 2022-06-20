@@ -1,23 +1,30 @@
-﻿using Diplom.Models.Model;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
+using Web.Repository;
 using Web.Repository.IProdMov;
 using Web.Repository.IProductRepo;
+using Web.Repository.ISimpleRepo;
 
 namespace Web.Controllers
 {
     public class BuyController : Controller
     {
-        IProdMov<PurchaseHistory> HistRepo;
-        IProductRepo<Product> ProductRepo;
+        private IProdMov<PurchaseHistory> HistRepo;
+        private IProductRepo<Product> ProductRepo;
+        private TypeRepository TypeRepo;
 
-        public BuyController(IProdMov<PurchaseHistory> HistRepository, IProductRepo<Product> ProductRepository) 
+        public BuyController(IProdMov<PurchaseHistory> HistRepository, IProductRepo<Product> ProductRepository,
+            ISimpleRepo<Web.Models.Simple.Type> typeRepo) 
         {
             HistRepo = HistRepository;
             ProductRepo=ProductRepository;
+            TypeRepo =(TypeRepository) typeRepo;
         }
+
         public async Task<IActionResult> MakeOrder()
         {//Если в базе данных есть запись о списке покупок, то надо его вывести
             PurchaseHistory hist;
@@ -49,12 +56,14 @@ namespace Web.Controllers
             }
             return View(hist);
         }
-        public async Task<IActionResult> CompleteOrder(int id)
+        public async Task<IActionResult> CompleteOrder(int id,String adress, string Phone)
         {
             if (User.Identity.Name != null)
             {
                 PurchaseHistory purch = await HistRepo.GetFull(id);
-                purch.StatusId = 13;
+                purch.Adress = adress;
+                purch.Phone = Phone;
+                purch.StatusId = TypeRepo.GetByParam("Status").Result.First(o => o.NormalizeName == "InProgress").Id;
                 purch.PurchaseDate = DateTime.Now;
                 await HistRepo.Update(purch);
             }
@@ -66,7 +75,9 @@ namespace Web.Controllers
                 HttpContext.Session.TryGetValue("Prod0", out result);
                 int ProductId = int.Parse(System.Text.Encoding.UTF8.GetString(result));
                 hist.DepartmentId = ProductRepo.Get(ProductId).Result.DepartmentId;
-                hist.StatusId = 13;
+                hist.Adress = adress;
+                hist.Phone = Phone;
+                hist.StatusId = TypeRepo.GetByParam("Status").Result.First(o => o.NormalizeName == "InProgress").Id;
                 hist.PurchaseDate = DateTime.Now;
                 for (int i = 0; i < 30; i++)
                 {
@@ -90,7 +101,7 @@ namespace Web.Controllers
                     await ProductRepo.Update(prod);
                 }
             }
-            return RedirectToAction("main");
+            return Redirect("/shop/main");
         }
     }
 }

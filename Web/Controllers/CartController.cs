@@ -1,34 +1,37 @@
-﻿using Diplom.Models.Model;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 using Web.UseCase;
 
-namespace Diplom.Controllers
+namespace Web.Controllers
 {
     public class CartController : Controller
     {
-        public CartController() 
+        private AddToCartUseCase addToCartCase;
+        private GetShoppingCartUseCase GetShoppingCart;
+        private DeleteFromShoppingCartUseCase DeleteShoppingCart;
+        public CartController(IUseCase<AddToCartUseCase> addToCartUse, IUseCase<GetShoppingCartUseCase> getShoppingCart,
+            IUseCase<DeleteFromShoppingCartUseCase> deleteShoppingCart)
         {
+            addToCartCase = (AddToCartUseCase) addToCartUse;
+            GetShoppingCart = (GetShoppingCartUseCase) getShoppingCart;
+            DeleteShoppingCart = (DeleteFromShoppingCartUseCase) deleteShoppingCart;
         }
         public async Task<IActionResult> ShoppingCart() 
         {
-            GetShoppingCartUseCase getShoppingCartUseCase = (GetShoppingCartUseCase)
-                HttpContext.RequestServices.GetService(typeof(GetShoppingCartUseCase));
-            List<Product> result = await getShoppingCartUseCase.Execute() as List<Product>;
+            List<Product> result = await GetShoppingCart.Execute() as List<Product>;
             return View(result);
         }
         public async Task<IActionResult> AddToCart(int id, int Count, string ReturnUrl) 
         {
-            AddToCartUseCase addToCartUseCase= (AddToCartUseCase) HttpContext.RequestServices.GetService(typeof(AddToCartUseCase));
-            bool result = await addToCartUseCase.Execute(id, Count, User.Identity.Name);
+            bool result = await addToCartCase.Execute(id, Count, User.Identity.Name);
             return Redirect(ReturnUrl);
         }
         public async Task<IActionResult> RemoveCart(int id)
         {
-            DeleteFromShoppingCartUseCase deleteFromShoppingCart = (DeleteFromShoppingCartUseCase)
-                HttpContext.RequestServices.GetService(typeof(DeleteFromShoppingCartUseCase));
-            bool result = await deleteFromShoppingCart.Execute(id);
+;
+            bool result = await DeleteShoppingCart.Execute(id);
             return RedirectToAction("ShoppingCart");
         }
     }

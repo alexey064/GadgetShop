@@ -1,4 +1,5 @@
-﻿@model Product
+﻿@using Web.Controllers
+@model Product
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Product description</title>
@@ -74,7 +75,7 @@
                     else if (Model.WireHeadphones != null)
                     { @await Html.PartialAsync("WireHeadphonesChar", Model); }
                     else if (Model.WirelessHeadphones != null)
-                    { @await Html.PartialAsync("WirelessHeadphones", Model); }
+                    { @await Html.PartialAsync("WirelessHeadphonesChar", Model); }
                 </div>
             </div>
         </div>
@@ -86,7 +87,7 @@
                     Ваш товар добавлен в корзину
                 </div>
                 <div class="modal-footer">
-                    <form asp-action="Buy">
+                    <form asp-controller="Cart" asp-action="AddToCart">
                         <input type="hidden" name="Id" value="@Model.ProductId" />
                         <input type="hidden" name="Count"/>
                         <input type="hidden" name="ReturnUrl" value="/Shop/Product?id=@Model.ProductId"/>

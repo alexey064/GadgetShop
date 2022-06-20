@@ -1,9 +1,9 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 
 namespace Web.Repository.IProdMov
 {
@@ -49,11 +49,11 @@ namespace Web.Repository.IProdMov
                 return false;
             }
         }
-
         public async Task<PurchaseHistory> FindByUserName(string UserName)
         {
-            return await DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product).Include(o => o.Client)
-                .Where(o => o.Client.NickName == UserName && o.StatusId == 11).FirstOrDefaultAsync();
+            return await DB.PurchaseHistories.Include(o => o.ProdMovement).ThenInclude(o => o.Product).Include(o => o.Client).Include(o=>o.Status)
+                .Where(o => o.Client.NickName.Equals(UserName) && o.Status.NormalizeName.Equals("InCart")).FirstOrDefaultAsync();
+            //TypeRepo.GetByParam("Status").Result.First(o => o.NormalizeName == "InProgress").Id;
         }
 
         public async Task<int> GetCount()
@@ -64,7 +64,7 @@ namespace Web.Repository.IProdMov
         public async Task<PurchaseHistory> GetFull(int id)
         {
             return await DB.PurchaseHistories.Include(o => o.Client).Include(o => o.department).Include(o => o.ProdMovement)
-                .ThenInclude(o=>o.Product).Include(o => o.Seller)
+                .ThenInclude(o=>o.Product).Include(o => o.Seller).Include(o=>o.Status)
                 .Where(o => o.Id == id).FirstOrDefaultAsync();
         }
 
@@ -87,7 +87,7 @@ namespace Web.Repository.IProdMov
             .Where(o=>o.Id==id).FirstOrDefaultAsync();
         }
 
-        public Task<bool> ProdMoveAdd(PurchaseHistory Container, int ProductId, int Count)
+        public Task<bool> ProdMoveAdd(int ContainerId, ProdMovement prod)
         {
             throw new System.NotImplementedException();
         }

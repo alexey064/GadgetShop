@@ -1,24 +1,17 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model;
+﻿using Web.Models.EF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Web;
 using Web.Areas.Api.Controllers;
 using Web.Repository;
 using Web.Repository.IProductRepo;
 using Web.UseCase;
+using Web.Models.Linked;
 
-namespace Diplom.Controllers
+namespace Web.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -26,16 +19,11 @@ namespace Diplom.Controllers
     public class ApiController : ControllerBase
     {
         ShopContext DB;
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
         private IProductRepo<Product> ProductRepo;
         ILinkedRepo<ProdMovement> ProdRepo;
-        public ApiController(ShopContext context, UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr, 
-            IProductRepo<Product> ProductRepository, ILinkedRepo<ProdMovement> ProdRepository) 
+        public ApiController(ShopContext context,IProductRepo<Product> ProductRepository, ILinkedRepo<ProdMovement> ProdRepository) 
         {
             DB = context;
-            userManager = usrmgr;
-            signInManager = signmgr;
             ProductRepo = ProductRepository;
             ProdRepo = ProdRepository;
         }
@@ -44,7 +32,7 @@ namespace Diplom.Controllers
         [AllowAnonymous]
         public async Task<string> NewlyAdded(int skip, int count)
         {
-            GetNewlyAddedUseCase NewlyAdded = new GetNewlyAddedUseCase(ProductRepo);
+            GetNewlyAddedUseCase NewlyAdded = new GetNewlyAddedUseCase(DB);
             try
             {
                 List<Product> output = await NewlyAdded.Execute(skip, count);
@@ -75,7 +63,7 @@ namespace Diplom.Controllers
         {
             try
             {
-                MaxDiscountedUseCase MaxDiscounted = new MaxDiscountedUseCase(ProductRepo);
+                MaxDiscountedUseCase MaxDiscounted = new MaxDiscountedUseCase(DB);
                 List<Product> output = await MaxDiscounted.Execute(skip, count);
                 return JsonCommon.ConvertToJson(output);
             }
@@ -100,32 +88,5 @@ namespace Diplom.Controllers
             }
             catch (Exception e) { return e.Message; }
         }
-        [Route("Login")]
-        [HttpPost]
-        [AllowAnonymous]
-        public async Task<string> Login(Dictionary<string, string> dict) 
-        {
-            var result = await signInManager.PasswordSignInAsync(dict["Username"],dict["Password"],true, true);
-            if (!result.Succeeded)
-            {
-                return "wrong UserName or Password";
-            }
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["Username"]) };
-            // создаем JWT-токен
-            var jwt = new JwtSecurityToken(
-                        issuer: AuthOptions.ISSUER,
-                        audience: AuthOptions.AUDIENCE,
-                        claims: claims,
-                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(AuthOptions.MINUTES)),
-                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return JsonCommon.ConvertToJson(encodedJwt);
-        }
-       
-        private string GetUsername() 
-        {
-            return HttpContext.User.Claims.ToArray()[0].Value;
-        }
-
     }
 }

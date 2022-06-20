@@ -1,4 +1,8 @@
-﻿@{ Layout = null;}
+﻿<!--
+этот файл используется в качестве левой боковой панели на всех 
+страницах редактирования сущностей.
+-->
+@{ Layout = null;}
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
@@ -31,34 +35,34 @@
                     </a>
                     <ul class="collapse nav flex-column ms-1" id="submenu2" data-bs-parent="#menu">
                         <li class="w-100">
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ChargingType)" asp-action="ItemList" name="Button">Brand</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Brand)" asp-action="List" name="Button">Brand</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Color)" asp-action="ItemList" name="Button">Color</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Color)" asp-action="List" name="Button">Color</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ChargingType)" asp-action="ItemList" name="Button">Charging type</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(ChargingType)" asp-action="List" name="Button">Charging type</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Department)" asp-action="ItemList" name="Button">Department</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Department)" asp-action="List" name="Button">Department</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(MovementType)" asp-action="ItemList" name="Button">MovementType</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(MovementType)" asp-action="List" name="Button">MovementType</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(OS)" asp-action="ItemList" name="Button">OS</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(OS)" asp-action="List" name="Button">OS</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Processor)" asp-action="ItemList" name="Button">Processors</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Processor)" asp-action="List" name="Button">Processors</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(ScreenType)" asp-action="ItemList" name="Button">ScreenType</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(ScreenType)" asp-action="List" name="Button">ScreenType</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Diplom.Models.Model.simple.Type)" asp-action="ItemList" name="Button">Type</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Web.Models.Simple.Type)" asp-action="List" name="Button">Type</a>
                         </li>
                         <li>
-                            <a class="nav-item sidebar-a" asp-controller="Simple" asp-route-Table="@nameof(Videocard)" asp-action="ItemList" name="Button">Videocard</a>
+                            <a class="nav-item sidebar-a" asp-controller="@nameof(Videocard)" asp-action="List" name="Button">Videocard</a>
                         </li>
                     </ul>
                 </li>

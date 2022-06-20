@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Diplom.Migrations
+namespace Web.Migrations
 {
     public partial class start6 : Migration
     {

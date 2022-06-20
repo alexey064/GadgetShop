@@ -1,11 +1,11 @@
-﻿using Diplom.Models.EF;
-using Diplom.Models.Model.simple;
+﻿using Web.Models.EF;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Web.Repository.ISimpleRepo;
+using Web.Models.Simple;
 
 namespace Web.Repository
 {
@@ -57,7 +57,7 @@ namespace Web.Repository
 
         public async Task<IEnumerable<ScreenType>> GetAll()
         {
-            return await DB.ScreenTypes.ToListAsync();
+            return await DB.ScreenTypes.OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<bool> Update(ScreenType type)
@@ -89,12 +89,12 @@ namespace Web.Repository
 
         public async Task<IEnumerable<ScreenType>> GetByParam(string param)
         {
-            return await DB.ScreenTypes.Where(o => o.Name == param).ToListAsync();
+            return await DB.ScreenTypes.Where(o => o.Name == param).OrderBy(o=>o.Name).ToListAsync();
         }
 
         public async Task<IEnumerable<ScreenType>> GetList(int skip, int count)
         {
-            return await DB.ScreenTypes.Skip(skip).Take(count).ToListAsync();
+            return await DB.ScreenTypes.Skip(skip).Take(count).OrderBy(o=>o.Name).ToListAsync();
         }
     }
 }

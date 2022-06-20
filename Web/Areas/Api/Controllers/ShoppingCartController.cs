@@ -1,10 +1,10 @@
-﻿using Diplom.Models.Model;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Web.Models.Linked;
 using Web.Repository.IProdMov;
 using Web.UseCase;
 

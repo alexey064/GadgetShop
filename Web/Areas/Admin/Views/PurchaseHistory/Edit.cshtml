@@ -1,0 +1,122 @@
+﻿@model Web.Models.ViewModel.PurchHistoryViewModel;
+@{
+
+    Layout = "_Sidebar";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>Edit</title>
+</head>
+<body>
+
+    <h4>PurchaseHistory</h4>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <form asp-action="Save">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input name="Id" value="@Model.EditItem.Id" type="hidden" asp-for="EditItem.Id" />
+                <div class="form-group">
+                    <label asp-for="EditItem.PurchaseDate" class="control-label">Date</label>
+                    <input value="@Model.EditItem.PurchaseDate" name="PurchaseDate" asp-for="EditItem.PurchaseDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Client" class="control-label">Client</label>
+                    <select name="ClientId" class="form-select" asp-for="EditItem.Client">
+                        @foreach (Client item in Model.People)
+                        {
+                            if (Model.EditItem.ClientId == item.Id)
+                            {
+                                <option selected value="@item.Id">@item.NickName</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">@item.NickName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Seller" class="control-label">Seller</label>
+                    <select name="SellerId" class="form-select" asp-for="EditItem.Seller">
+                        @foreach (Client item in Model.People)
+                        {
+                            if (Model.EditItem.ClientId == item.Id)
+                            {
+                                <option selected value="@item.Id">@item.NickName</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">@item.NickName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.Status" class="control-label">Status</label>
+                    <select name="StatusId" class="form-select" asp-for="EditItem.Status">
+                        @foreach (Web.Models.Simple.Type item in Model.Status)
+                        {
+                            if (Model.EditItem.StatusId == item.Id)
+                            {
+                                <option selected value="@item.Id">@item.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@item.Id">@item.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EditItem.DepartmentId" class="control-label">Department</label>
+                    <select name="DepartmentId" class="form-select" asp-for="EditItem.DepartmentId">
+                        @foreach (Department item in Model.Department)
+                        {
+                            if (Model.EditItem.DepartmentId == item.DepartmentId)
+                            {
+                                <option selected value="@item.DepartmentId">@item.Adress</option>
+                            }
+                            else
+                            {
+                                <option value="@item.DepartmentId">@item.Adress</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Name</th>
+                        <th>Count</th>
+                    </tr>
+                    @foreach (ProdMovement item in Model.EditItem.ProdMovement)
+                    {
+                        <tr>
+                            <td>@item.Product.Name</td>
+                            <td>@item.Count</td>
+                        </tr>
+                    }
+                </table>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-success" />
+                    @if (Model.EditItem.Id != 0)
+                    {
+                        <button name="id" value="@Model.EditItem.Id" class="btn btn-primary" type="submit" asp-action="ProdMoveEdit">Товары</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+    <div>
+        <a class="btn btn-danger" asp-action="List">Back to List</a>
+    </div>
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html>
