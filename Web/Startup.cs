@@ -88,6 +88,7 @@ namespace Web
             services.AddTransient<IUseCase<AddToCartUseCase>, AddToCartUseCase>();
             services.AddTransient<IUseCase<DeleteFromShoppingCartUseCase>, DeleteFromShoppingCartUseCase>();
             services.AddTransient<IUseCase<RegisterUseCase>, RegisterUseCase>();
+            services.AddTransient<IUseCase<GetCatalogUseCase>, GetCatalogUseCase>();
 
 
             services.AddSession(options =>

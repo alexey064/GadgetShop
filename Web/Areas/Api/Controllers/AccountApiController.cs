@@ -17,12 +17,12 @@ namespace Web.Areas.Api.Controllers
 {
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-
-    public class AccountController : Controller
+    [Route("api/[controller]api")]
+    public class AccountApiController : Controller
     {
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signInManager;
-        public AccountController(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr) 
+        public AccountApiController(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr) 
         {
             userManager = usrmgr;
             signInManager = signmgr;
@@ -33,12 +33,12 @@ namespace Web.Areas.Api.Controllers
         [AllowAnonymous]
         public async Task<string> Login(Dictionary<string, string> dict)
         {
-            var result = await signInManager.PasswordSignInAsync(dict["Username"], dict["Password"], true, true);
+            var result = await signInManager.PasswordSignInAsync(dict["UserName"], dict["Password"], true, true);
             if (!result.Succeeded)
             {
                 return "wrong UserName or Password";
             }
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["Username"]) };
+            var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["UserName"]) };
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
                         issuer: AuthOptions.ISSUER,

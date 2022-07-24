@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Web.Models.Linked;
 
 namespace Web.Models.Simple
@@ -15,7 +16,9 @@ namespace Web.Models.Simple
         [Required]
         public string Name { get; set; }
         public string AddInfo { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Notebook> Notebooks { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Smartphone> Smartphones { get; set; }
     }
 }

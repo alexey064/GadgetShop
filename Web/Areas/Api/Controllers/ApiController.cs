@@ -18,14 +18,17 @@ namespace Web.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ApiController : ControllerBase
     {
-        ShopContext DB;
+        private ShopContext DB;
         private IProductRepo<Product> ProductRepo;
-        ILinkedRepo<ProdMovement> ProdRepo;
-        public ApiController(ShopContext context,IProductRepo<Product> ProductRepository, ILinkedRepo<ProdMovement> ProdRepository) 
+        private ILinkedRepo<ProdMovement> ProdRepo;
+        private GetCatalogUseCase GetCatalogCase;
+        public ApiController(ShopContext context,IProductRepo<Product> ProductRepository, ILinkedRepo<ProdMovement> ProdRepository,
+            IUseCase<GetCatalogUseCase> getCatalogCase)
         {
             DB = context;
             ProductRepo = ProductRepository;
             ProdRepo = ProdRepository;
+            GetCatalogCase =(GetCatalogUseCase) getCatalogCase;
         }
         [Route("NewlyAdded")]
         [HttpGet]
@@ -74,7 +77,7 @@ namespace Web.Controllers
         [AllowAnonymous]
         public async Task<string> Catalog(string type, int skip, int count) 
         {
-            return JsonCommon.ConvertToJson(await ProductRepo.GetByCategory(skip, count, type) as List<Product>);
+            return JsonCommon.ConvertToJson(await GetCatalogCase.Execute(type, skip, count));
         }
         [HttpGet]
         [Route("GetProduct")]

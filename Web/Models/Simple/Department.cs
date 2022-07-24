@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Web.Models.Linked;
 
 namespace Web.Models.Simple
@@ -15,9 +16,11 @@ namespace Web.Models.Simple
         public int DepartmentId { get; set; }
         [Required]
         public string Adress { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<Client> Clients { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Product> Products { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Provider> Providers { get; set; }
     }
 }

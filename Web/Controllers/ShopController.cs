@@ -20,9 +20,10 @@ namespace Web.Controllers
         private ILinkedRepo<Smartphone> SmartRepo;
         private ILinkedRepo<WireHeadphone> WireRepo;
         private ILinkedRepo<WirelessHeadphone> WirelessRepo;
+        private GetCatalogUseCase GetCatalogCase;
         public ShopController(IProductRepo<Product> ProductRepository, ILinkedRepo<ProdMovement> ProdRepository,
             ILinkedRepo<Accessory> AccessoryRepository, ILinkedRepo<Notebook> NotebookRepository, ILinkedRepo<Smartphone> SmartRepository,
-            ILinkedRepo<WireHeadphone> WireRepository, ILinkedRepo<WirelessHeadphone> WirelessRepository) 
+            ILinkedRepo<WireHeadphone> WireRepository, ILinkedRepo<WirelessHeadphone> WirelessRepository, IUseCase<GetCatalogUseCase> getCatalogUseCase)
         {
             ProductRepo = ProductRepository;
             ProdRepo = ProdRepository;
@@ -31,6 +32,7 @@ namespace Web.Controllers
             SmartRepo = SmartRepository;
             WireRepo = WireRepository;
             WirelessRepo = WirelessRepository;
+            GetCatalogCase = (GetCatalogUseCase)getCatalogUseCase;
         }
         public async Task<IActionResult> Main([FromServices] ShopContext DB)
         {
@@ -49,52 +51,33 @@ namespace Web.Controllers
             List<Product> output = new List<Product>();
             ViewBag.CurrentPage = Page;
             int count = 0;
+            int skip = (Page - 1) * itemPerPage;
             switch (type)
             {
                 case nameof(Accessory):
                     ViewBag.Type = nameof(Accessory);
                     count = await AccessoryRepo.GetCount();
-                    IEnumerable<Accessory> Accessories = await AccessoryRepo.GetListFull((Page - 1) * itemPerPage, itemPerPage);
-                    foreach (Accessory prod in Accessories)
-                    {
-                        output.Add(prod.Product);
-                    }
+                    output= await GetCatalogCase.Execute(nameof(Accessory), skip, itemPerPage);
                     break;
                 case nameof(Notebook):
                     ViewBag.Type = nameof(Notebook);
                     count = await NotebookRepo.GetCount();
-                    IEnumerable<Notebook> Notebooks = await NotebookRepo.GetListFull((Page - 1) * itemPerPage, itemPerPage);
-                    foreach (Notebook prod in Notebooks) 
-                    {
-                        output.Add(prod.Product);
-                    }
+                    output = await GetCatalogCase.Execute(nameof(Notebook), skip, itemPerPage);
                     break;
                 case nameof(Smartphone):
                     ViewBag.Type = nameof(Smartphone);
                     count = await SmartRepo.GetCount();
-                    IEnumerable<Smartphone> smartphones = await SmartRepo.GetListFull((Page - 1) * itemPerPage, itemPerPage);
-                    foreach (Smartphone prod in smartphones)
-                    {
-                        output.Add(prod.Product);
-                    }
+                    output = await GetCatalogCase.Execute(nameof(Smartphone), skip, itemPerPage);
                     break;
                 case nameof(WireHeadphone):
                     ViewBag.Type = nameof(WireHeadphone);
                     count = await WireRepo.GetCount();
-                    IEnumerable<WireHeadphone> WireHeads = await WireRepo.GetListFull((Page - 1) * itemPerPage, itemPerPage);
-                    foreach (WireHeadphone prod in WireHeads)
-                    {
-                        output.Add(prod.Product);
-                    }
+                    output = await GetCatalogCase.Execute(nameof(WireHeadphone), skip, itemPerPage);
                     break;
                 case nameof(WirelessHeadphone):
                     ViewBag.Type = nameof(WirelessHeadphone);
                     count = await WirelessRepo.GetCount();
-                    IEnumerable<WirelessHeadphone> wireless = await WirelessRepo.GetListFull((Page - 1) * itemPerPage, itemPerPage);
-                    foreach (WirelessHeadphone prod in wireless)
-                    {
-                        output.Add(prod.Product);
-                    }
+                    output = await GetCatalogCase.Execute(nameof(WirelessHeadphone), skip, itemPerPage);
                     break;
             }
             int temp = (int)count / itemPerPage;
