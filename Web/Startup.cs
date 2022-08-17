@@ -33,6 +33,7 @@ namespace Web
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
+                        options.SaveToken = true;
                         options.RequireHttpsMetadata = false;
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
@@ -99,7 +100,7 @@ namespace Web
             });
             services.ConfigureApplicationCookie(options => options.LoginPath = "/shop/Main");
             services.AddDbContext<ShopContext>(p => p.UseSqlServer("server=DESKTOP-F3SVKM1;Database=Shop;integrated security=true;"));
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();
+            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<IdentityContext>();
             services.AddDbContext<IdentityContext>(opt => opt.UseSqlServer("server=DESKTOP-F3SVKM1;Database=ShopIdentity;integrated security=true;"));
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

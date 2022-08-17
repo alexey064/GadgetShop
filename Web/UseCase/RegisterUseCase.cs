@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using Web.Models.EF;
 using Web.Models.Linked;
 using Web.Models.ViewModel;
 using Web.Repository;
@@ -8,10 +9,10 @@ namespace Web.UseCase
 {
     public class RegisterUseCase : IUseCase<RegisterUseCase>
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
         private ILinkedRepo<Client> ClientRepo;
-        public RegisterUseCase(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr, ILinkedRepo<Client> ClientRepository) 
+        public RegisterUseCase(UserManager<ApplicationUser> usrmgr, SignInManager<ApplicationUser> signmgr, ILinkedRepo<Client> ClientRepository) 
         {
             userManager = usrmgr;
             signInManager = signmgr;
@@ -19,7 +20,7 @@ namespace Web.UseCase
         }
         public async Task<bool> Execute(RegisterViewModel model)
         {
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = model.UserName,
                 Email = model.Email,

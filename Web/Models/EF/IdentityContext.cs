@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Web.Models.EF
 {
-    public class IdentityContext :IdentityDbContext
+    public class IdentityContext :IdentityDbContext<ApplicationUser>
     {
         private readonly DbContextOptions _options;
 

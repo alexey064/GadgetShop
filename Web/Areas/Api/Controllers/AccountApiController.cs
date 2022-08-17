@@ -1,15 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
+using Web.Areas.Api.Models;
+using Web.Models.EF;
 using Web.Models.ViewModel;
 using Web.UseCase;
 
@@ -17,38 +18,91 @@ namespace Web.Areas.Api.Controllers
 {
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/[controller]api")]
+    [Route("api/[controller]")]
     public class AccountApiController : Controller
     {
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signInManager;
-        public AccountApiController(UserManager<IdentityUser> usrmgr, SignInManager<IdentityUser> signmgr) 
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
+        public AccountApiController(UserManager<ApplicationUser> usrmgr, SignInManager<ApplicationUser> signmgr) 
         {
             userManager = usrmgr;
             signInManager = signmgr;
+        }
+        [Route("UpdateToken")]
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<HttpResponse> UpdateToken(Dictionary<string, string> dict) 
+        {
+            var response = this.Response;
+            RefreshToken refToken = new RefreshToken();
+
+            TokenModel output = new TokenModel();
+            ApplicationUser user = userManager.Users.FirstOrDefault(o => o.RefreshToken == dict["RefreshToken"]);
+            if (user != null)
+            {
+                if (user.RefreshTokenExpiryTime < DateTime.UtcNow.AddDays(10) && user.RefreshTokenExpiryTime > DateTime.UtcNow)
+                {
+                    //get refresh Token
+                    GenerateRefreshTokenUseCase GenerateRefreshToken = new GenerateRefreshTokenUseCase();
+                    refToken = GenerateRefreshToken.Execute();
+
+                    user.RefreshToken = refToken.Token;
+                    user.RefreshTokenExpiryTime = refToken.ExpiredDate;
+                    await userManager.UpdateAsync(user);
+                }
+                else { output.RefreshToken = user.RefreshToken; }
+                //get access Token
+                GenerateAccessTokenUseCase generateAccessToken = new GenerateAccessTokenUseCase();
+                output.AccessToken=generateAccessToken.Execute(user);
+                
+            }
+            else 
+            {
+                response.StatusCode = StatusCodes.Status401Unauthorized;
+                await response.Body.WriteAsync(Encoding.UTF8.GetBytes(JsonCommon.ConvertToJson("wrong refresh token")));
+                return response;
+            }
+            await response.Body.WriteAsync(Encoding.UTF8.GetBytes(JsonCommon.ConvertToJson(output)));
+            return response;
         }
 
         [Route("Login")]
         [HttpPost]
         [AllowAnonymous]
-        public async Task<string> Login(Dictionary<string, string> dict)
+        public async Task<HttpResponse> Login(Dictionary<string, string> dict)
         {
-            var result = await signInManager.PasswordSignInAsync(dict["UserName"], dict["Password"], true, true);
-            if (!result.Succeeded)
+            var response = this.Response;
+            string token;
+            var result =
+                    await signInManager.PasswordSignInAsync(dict["Username"].ToString(), dict["Password"].ToString(), true, false);
+            if (result.Succeeded)
             {
-                return "wrong UserName or Password";
+                var user = await userManager.FindByNameAsync(dict["Username"]);
+                GenerateAccessTokenUseCase genAccessToken = new GenerateAccessTokenUseCase();
+                token = genAccessToken.Execute(user);
+                if (user.RefreshTokenExpiryTime<DateTime.Now.AddDays(10))
+                {
+                    GenerateRefreshTokenUseCase genRefreshToken = new GenerateRefreshTokenUseCase();
+                    RefreshToken refreshToken = genRefreshToken.Execute();
+
+                    user.RefreshToken = refreshToken.Token;
+                    user.RefreshTokenExpiryTime = refreshToken.ExpiredDate;
+
+                    await userManager.UpdateAsync(user);
+                }
+
+                TokenModel output = new TokenModel();
+                output.AccessToken = token;
+                output.RefreshToken = user.RefreshToken;
+                await response.Body.WriteAsync(Encoding.UTF8.GetBytes(JsonCommon.ConvertToJson(output)));
+                response.StatusCode = StatusCodes.Status200OK;
+                return response;
             }
-            var claims = new List<Claim> { new Claim(ClaimTypes.Name, dict["UserName"]) };
-            // создаем JWT-токен
-            var jwt = new JwtSecurityToken(
-                        issuer: AuthOptions.ISSUER,
-                        audience: AuthOptions.AUDIENCE,
-                        claims: claims,
-                        expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(AuthOptions.MINUTES)),
-                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return JsonCommon.ConvertToJson(encodedJwt);
+            response.StatusCode = StatusCodes.Status401Unauthorized;
+            response.Body.Write(Encoding.UTF8.GetBytes("wrong UserName or Password"));
+            return response;
         }
+
         private string GetUsername()
         {
             return HttpContext.User.Claims.ToArray()[0].Value;
@@ -56,8 +110,9 @@ namespace Web.Areas.Api.Controllers
         [Route("Register")]
         [HttpPost]
         [AllowAnonymous]
-        public async Task<string> Register(Dictionary<string, string> dict) 
+        public async Task<HttpResponse> Register(Dictionary<string, string> dict) 
         {
+            var response = this.Response;
             RegisterUseCase register = (RegisterUseCase)HttpContext.RequestServices.GetService<IUseCase<RegisterUseCase>>();
             RegisterViewModel model = new RegisterViewModel();
             model.UserName = dict["UserName"];
@@ -65,13 +120,10 @@ namespace Web.Areas.Api.Controllers
             bool result = await register.Execute(model);
             if (result)
             {
-                string Islogin= await Login(dict);
-                if (Islogin.Length>40)
-                {
-                    return Islogin;
-                }
+                response.StatusCode = StatusCodes.Status200OK;
             }
-            return "false";
+            else { response.StatusCode = StatusCodes.Status401Unauthorized; }
+            return response;
         }
     }
 }
